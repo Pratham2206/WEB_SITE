@@ -27,7 +27,8 @@ const submitOrder = async (req, res) => {
         senderAddress,
         receiverAddress,
         pickupDate,
-        pickupTime
+        pickupTime,
+        amount // Extract amount here
     } = req.body;
 
     try {
@@ -61,6 +62,7 @@ const submitOrder = async (req, res) => {
                 senderAddress,
                 receiverAddress,
                 receiverName,
+                amount, // Extract amount here
                 status: 'pending',
             });
             res.status(200).send('Immediate delivery order created successfully');
@@ -85,6 +87,7 @@ const submitOrder = async (req, res) => {
                 receiverAddress,
                 pickupDate,
                 pickupTime,
+                amount,// Extract amount here
                 status: 'pending',
             });
             res.status(200).send('Scheduled delivery order created successfully');
@@ -140,17 +143,25 @@ const userSubmitOrder = async (req, res) => {
         razorpay_signature,
         amount,
     } = req.body;
+
+    console.log('Received Order Request:', req.body); // Log request body
+
     try {
         // Verify Razorpay payment
         const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
         shasum.update(`${razorpay_order_id}|${razorpay_payment_id}`);
         const digest = shasum.digest('hex');
+
         if (digest !== razorpay_signature) {
-            return res.status(400).json({ status: 'failed' });
+            console.error('Razorpay signature verification failed');
+            return res.status(400).json({ status: 'failed', message: 'Invalid Razorpay signature' });
         }
+
+        console.log('Razorpay payment verified successfully');
 
         let customer = await Customer.findOne({ where: { email } });
         if (!customer) {
+            console.log('Customer not found, creating a new one');
             customer = await Customer.create({
                 name,
                 phoneNumber,
@@ -164,11 +175,15 @@ const userSubmitOrder = async (req, res) => {
                 senderAddress,
                 receiverAddress,
             });
+            console.log('New Customer Created:', customer);
+        } else {
+            console.log('Customer Found:', customer);
         }
 
         const amountInRupees = (amount / 100).toFixed(2);
+        console.log('Amount in Rupees:', amountInRupees);
+
         const orderData = {
-            customerId: serviceType === "Delivery Now" ? null : customer.id,
             phoneNumber,
             name,
             email,
@@ -188,25 +203,39 @@ const userSubmitOrder = async (req, res) => {
             status: 'pending',
         };
 
-        let order; // Define the order variable outside the conditional blocks
+        console.log('Order Data Prepared:', orderData);
 
+        let order;
         if (serviceType === "Delivery Now") {
             order = await Order.create(orderData);
+            console.log('Order Created for "Delivery Now":', order);
+
+             // Fetch the created order to verify it's stored correctly
+    const createdOrder = await Order.findByPk(order.id);
+    console.log('Created Order:', createdOrder);
+
         } else if (serviceType === "Schedule for Later") {
             if (!pickupDate || !pickupTime) {
+                console.error('Pickup date and time are missing for scheduled delivery');
                 return res.status(400).json({ error: 'Pickup date and time are required for scheduled deliveries' });
             }
             orderData.pickupDate = pickupDate;
             orderData.pickupTime = pickupTime;
             order = await Order.create(orderData);
+            console.log('Order Created for "Schedule for Later":', order);
+
+              // Fetch the created order to verify it's stored correctly
+    const createdOrder = await Order.findByPk(order.id);
+    console.log('Created Order:', createdOrder);
         } else {
+            console.error('Invalid service type:', serviceType);
             return res.status(400).json({ error: 'Invalid service type' });
         }
 
-        // Now you can safely access the order.id
-        const orderId = order.id; // Get the order ID from the created order
-        
-        // Send notification to the customer after everything is completed
+        const orderId = order.id;
+        console.log('Order ID:', orderId);
+
+        // Send notification to the customer
         const customerMessage = createEmailTemplate(
             'Order Confirmation',
             `Dear ${name},<br><br>
@@ -229,12 +258,12 @@ const userSubmitOrder = async (req, res) => {
         }
 
         return res.status(200).json({ message: 'Order created successfully' });
-
     } catch (err) {
-        console.error('Error processing order:', err.message);
+        console.error('Error processing order:', err.message, err.stack);
         return res.status(500).json({ error: 'Internal Server Error', message: err.message });
     }
 };
+
 
 // Function to get all customer data
 const getUserData = async (req, res) => {

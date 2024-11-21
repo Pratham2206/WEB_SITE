@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const path = require('path'); // Add this for path module
 const sequelize = require('./config/sequelize');
 const Contact = require('./models/contact');
 const CareerApplication = require('./models/careerApplication');
@@ -63,15 +62,6 @@ app.use('/api/auth/web', webauthRoutes);
 app.use('/api/user/web', webuserRoutes);
 
 
-// Serve static files from React app
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'client/build')));
-
-  // Catch-all route to serve React's index.html for any route not found (helpful for React Router)
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
-  });
-}
 
 // Function to start the server and sync the database
 const start = async () => {

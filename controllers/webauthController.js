@@ -40,7 +40,7 @@ exports.register = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const otp = randomize('0', 6); // Generate a 6-digit OTP
-        const otpExpiry = moment().add(10, 'minutes').toDate();
+        const otpExpiry = moment().add(5, 'minutes').toDate();
 
         const role = 'user';
 
