@@ -5,10 +5,6 @@ const crypto = require('crypto');
 require('dotenv').config();
 const {sendEmail, createEmailTemplate} = require('../services/emailConformations');
 
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
-});
 
 // Function to handle order submission
 const submitOrder = async (req, res) => {
@@ -100,45 +96,67 @@ const submitOrder = async (req, res) => {
     }
 };
 
-// Function to create a Razorpay order
+// Initialize Razorpay instance
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID , // Replace with your actual key_id
+    key_secret: process.env.RAZORPAY_KEY_SECRET , // Replace with your actual key_secret
+});
+
+// Razorpay order creation function
 const createRazorpayOrder = async (req, res) => {
     try {
         // Log the request body to inspect incoming data
-        console.log('Request received to create Razorpay order with data');
-        
+        console.log('Request received to create Razorpay order with data:', req.body);
+
         const { amount, currency, receipt } = req.body;
-        
+
         // Check if amount and currency are provided
         if (!amount || !currency) {
             console.error('Amount or currency is missing in request body');
             return res.status(400).json({ error: 'Amount and currency are required' });
         }
 
-        // Log the options before creating the Razorpay order
+        // Prepare Razorpay order options
         const options = {
-            amount: amount,
+            amount: Math.round(amount), // Ensure it's an integer
             currency: currency,
-            receipt: receipt || `receipt#${Date.now()}`,
+            receipt: receipt || `receipt#${Date.now()}`, // Default receipt if not provided
         };
-       
+
+        // Log options before making the Razorpay API call
+        console.log('Razorpay order options:', options);
+
+        // Check if Razorpay instance is initialized properly
+        console.log('Razorpay instance:', razorpay);
+
+        // Log environment variables (only for debugging, remove in production)
+        console.log('Environment variables:', {
+            key_id: process.env.RAZORPAY_KEY_ID,
+            key_secret: process.env.RAZORPAY_KEY_SECRET,
+        });
+
         // Create the Razorpay order
         const razorpayOrder = await razorpay.orders.create(options);
 
         // Log the successful response from Razorpay
-        console.log('Razorpay order created successfully');
+        console.log('Razorpay order created successfully:', razorpayOrder);
 
         // Respond with the Razorpay order details
         res.json(razorpayOrder);
     } catch (error) {
         // Log any errors that occur during the Razorpay order creation
-        console.error('Error creating Razorpay order:', error.response ? error.response.data : error.message);
+        console.error(
+            'Error creating Razorpay order:',
+            error.response ? error.response.data : error.message
+        );
 
         // Return error response to the client
-        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+        res.status(500).json({ 
+            error: 'Internal Server Error',
+            message: error.message, // Include more detailed error message for debugging
+        });
     }
 };
-
-
 // Function to handle user order submission
 const userSubmitOrder = async (req, res) => {
     const {
