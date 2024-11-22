@@ -103,22 +103,41 @@ const submitOrder = async (req, res) => {
 // Function to create a Razorpay order
 const createRazorpayOrder = async (req, res) => {
     try {
+        // Log the request body to inspect incoming data
+        console.log('Request received to create Razorpay order with data');
+        
         const { amount, currency, receipt } = req.body;
+        
+        // Check if amount and currency are provided
         if (!amount || !currency) {
+            console.error('Amount or currency is missing in request body');
             return res.status(400).json({ error: 'Amount and currency are required' });
         }
+
+        // Log the options before creating the Razorpay order
         const options = {
             amount: amount,
             currency: currency,
             receipt: receipt || `receipt#${Date.now()}`,
         };
+       
+        // Create the Razorpay order
         const razorpayOrder = await razorpay.orders.create(options);
+
+        // Log the successful response from Razorpay
+        console.log('Razorpay order created successfully');
+
+        // Respond with the Razorpay order details
         res.json(razorpayOrder);
     } catch (error) {
+        // Log any errors that occur during the Razorpay order creation
         console.error('Error creating Razorpay order:', error.response ? error.response.data : error.message);
+
+        // Return error response to the client
         res.status(500).json({ error: 'Internal Server Error', message: error.message });
     }
 };
+
 
 // Function to handle user order submission
 const userSubmitOrder = async (req, res) => {
@@ -143,9 +162,7 @@ const userSubmitOrder = async (req, res) => {
         razorpay_signature,
         amount,
     } = req.body;
-
-    console.log('Received Order Request:', req.body); // Log request body
-
+    console.log('Received Order Request'); // Log request body
     try {
         // Verify Razorpay payment
         const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
@@ -156,9 +173,7 @@ const userSubmitOrder = async (req, res) => {
             console.error('Razorpay signature verification failed');
             return res.status(400).json({ status: 'failed', message: 'Invalid Razorpay signature' });
         }
-
         console.log('Razorpay payment verified successfully');
-
         let customer = await Customer.findOne({ where: { email } });
         if (!customer) {
             console.log('Customer not found, creating a new one');
@@ -175,14 +190,12 @@ const userSubmitOrder = async (req, res) => {
                 senderAddress,
                 receiverAddress,
             });
-            console.log('New Customer Created:', customer);
+            console.log('New Customer Created');
         } else {
-            console.log('Customer Found:', customer);
+            console.log('Customer Found');
         }
-
         const amountInRupees = (amount / 100).toFixed(2);
-        console.log('Amount in Rupees:', amountInRupees);
-
+        console.log('Amount in Rupees');
         const orderData = {
             phoneNumber,
             name,
@@ -203,17 +216,15 @@ const userSubmitOrder = async (req, res) => {
             status: 'pending',
         };
 
-        console.log('Order Data Prepared:', orderData);
+        console.log('Order Data Prepared');
 
         let order;
         if (serviceType === "Delivery Now") {
             order = await Order.create(orderData);
-            console.log('Order Created for "Delivery Now":', order);
-
+            console.log('Order Created for "Delivery Now"');
              // Fetch the created order to verify it's stored correctly
     const createdOrder = await Order.findByPk(order.id);
     console.log('Created Order:', createdOrder);
-
         } else if (serviceType === "Schedule for Later") {
             if (!pickupDate || !pickupTime) {
                 console.error('Pickup date and time are missing for scheduled delivery');
@@ -222,7 +233,7 @@ const userSubmitOrder = async (req, res) => {
             orderData.pickupDate = pickupDate;
             orderData.pickupTime = pickupTime;
             order = await Order.create(orderData);
-            console.log('Order Created for "Schedule for Later":', order);
+            console.log('Order Created for "Schedule for Later"');
 
               // Fetch the created order to verify it's stored correctly
     const createdOrder = await Order.findByPk(order.id);
@@ -267,8 +278,10 @@ const userSubmitOrder = async (req, res) => {
 
 // Function to get all customer data
 const getUserData = async (req, res) => {
+    console.log('Fetching user data');
     try {
         const users = await Customer.findAll();
+        console.log('Fetched user data');
         res.json(users);
     } catch (err) {
         console.error('Error fetching data:', err);

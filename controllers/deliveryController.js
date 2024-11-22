@@ -8,6 +8,7 @@ const { Op } = require('sequelize');
 
 exports.fetchPendingOrders = async (req, res) => {
   try {
+    console.log('Fetching pending orders...');
     const orders = await Order.findAll({
       where: {
         status: 'pending',
@@ -16,6 +17,7 @@ exports.fetchPendingOrders = async (req, res) => {
         }
       }
     });
+    console.log('Fetched orders');
     res.json(orders);
   } catch (err) {
     console.error('Error fetching orders:', err);
@@ -25,6 +27,7 @@ exports.fetchPendingOrders = async (req, res) => {
 
 exports.fetchScheduledOrders = async (req, res) => {
   try {
+    console.log('Fetching scheduled orders...');
     const orders = await Order.findAll({
       where: {
         status: 'pending',
@@ -33,6 +36,7 @@ exports.fetchScheduledOrders = async (req, res) => {
         }
       }
     });
+    console.log('Fetched scheduled orders');
     res.json(orders);
   } catch (err) {
     console.error('Error fetching orders:', err);
@@ -42,7 +46,9 @@ exports.fetchScheduledOrders = async (req, res) => {
 
 exports.fetchAssignedOrders = async (req, res) => {
   try {
+    console.log('Fetching assigned orders...');
     const orders = await AssignedOrder.findAll({ where: { status: ['active', 'picked', 'delivered'] } });
+    console.log('Fetched assigned orders...');
     res.json(orders);
   } catch (err) {
     console.error('Error fetching assigned orders:', err);
@@ -54,14 +60,16 @@ exports.assignOrder = async (req, res) => {
   const { orderId, driverPhoneNumber, driverName, userId } = req.body;
 
   try {
+    console.log('Assigning order...');
     const order = await Order.findOne({ where: { id: orderId } });
-
+    console.log('Order fetched....');
     if (!order) {
+      console.error(`Order with ID ${orderId} not found.`);
       return res.status(404).json({ error: 'Order not found' });
     }
 
     const otp = generateOTP();
-
+    console.log('Generated OTP...');
     const assignedOrder = await AssignedOrder.create({
       order_id: orderId,
       driver_id: userId,
@@ -86,13 +94,18 @@ exports.assignOrder = async (req, res) => {
       deliveryInstructions: order.deliveryInstructions,
       otp: otp,
     });
+    console.log('Assigned order created....');
 
     await Order.update({ status: 'active', assignedDriver: driverName }, { where: { id: orderId } });
+    console.log(`Order status updated for order ID ${orderId}.`);
     await DeliveryBoy.update({ available: 'assigned' }, { where: { phonenumber: driverPhoneNumber } });
+    console.log(`Driver availability updated for phone number ${driverPhoneNumber}.`);
+
 
     const driver = await DeliveryBoy.findOne({ where: { phonenumber: driverPhoneNumber } });
-    
+    console.log('Driver fetched....');
     if (!driver) {
+      console.error(`Driver with phone number ${driverPhoneNumber} not found.`);
       return res.status(404).json({ error: 'Driver not found' });
     }
     const driverEmail = driver.email;
@@ -105,8 +118,8 @@ exports.assignOrder = async (req, res) => {
        -Phone Number: ${driverPhoneNumber}<br><br>
       Thank you for choosing TURTU.`
     );
-    
     await sendEmail(order.email, 'Order Assigned', customerMessage);
+    console.log('Customer email sent.');
 // Example of how you might call sendEmail
 const driverMessage = createEmailTemplate('New Order Assigned', `
   Dear ${driverName},<br><br>
@@ -121,8 +134,8 @@ const driverMessage = createEmailTemplate('New Order Assigned', `
    - Please contact the customer if necessary.<br><br>
   Thank you for choosing TURTU.
 `);
-
-await sendEmail(driverEmail, 'New Order Assigned to you', driverMessage);
+    await sendEmail(driverEmail, 'New Order Assigned to you', driverMessage);
+    console.log('Driver email sent...');
     res.status(201).json({ message: 'Driver assigned successfully and emails sent!', assignedOrder });
   } catch (err) {
     console.error('Error assigning order:', err);
@@ -133,12 +146,16 @@ await sendEmail(driverEmail, 'New Order Assigned to you', driverMessage);
 exports.fetchAssignedOrdersByDriver = async (req, res) => {
   const { driver_id } = req.params;
   try {
+    console.log('Fetching assigned orders for driver...');
     const assignedOrders = await AssignedOrder.findAll({
       where: { driver_id },
     });
+    console.log('Assigned orders fetched....');
     if (assignedOrders.length > 0) {
+      console.log(`Found assigned orders for driver`);
       res.status(200).json(assignedOrders);
     } else {
+      console.warn(`No assigned orders found for driver`);
       res.status(404).json({ message: 'No assigned orders found for this driver' });
     }
   } catch (error) {
@@ -150,12 +167,15 @@ exports.fetchAssignedOrdersByDriver = async (req, res) => {
 exports.fetchOrderById = async (req, res) => {
   const { orderId } = req.params;
   try {
+    console.log('Fetching order by ID:', orderId);
     const order = await AssignedOrder.findOne({
       where: { order_id: orderId },
     });
     if (!order) {
+      console.warn(`Order not found for ID: ${orderId}`);
       return res.status(404).json({ message: 'Order not found' });
     }
+     console.log('Order details retrieved....');
     res.json(order);
   } catch (error) {
     console.error('Error fetching assigned orders:', error);
@@ -165,18 +185,21 @@ exports.fetchOrderById = async (req, res) => {
 
 exports.updateOrderStatus = async (req, res) => {
   const { orderId, status, driverUserId } = req.body;
-
+  console.log('Update Order Status Request....');
   // Validate request parameters
   if (!orderId || !status || !driverUserId) {
+    console.warn('Missing required parameters:', { orderId, status, driverUserId });
     return res.status(400).json({ message: 'Order ID, status, and driver user ID are required' });
   }
 
   // Validate the status field
   if (!['active', 'picked', 'delivered'].includes(status)) {
+    console.warn('Invalid status value:', status);
     return res.status(400).json({ message: 'Invalid status value' });
   }
 
   try {
+    console.log('Fetching current order and assigned order for orderId:', orderId);
     // Fetch the current order and assigned order simultaneously
     const [currentOrder, assignedOrder] = await Promise.all([
       Order.findByPk(orderId),
@@ -185,22 +208,24 @@ exports.updateOrderStatus = async (req, res) => {
 
     // Check if the order or assigned order exists
     if (!currentOrder || !assignedOrder) {
+      console.warn('Order or assigned order not found for orderId....');
       return res.status(404).json({ message: 'Order or assigned order not found' });
     }
-
     // Extract customer details
     const { email: customerEmail, name: customerName } = currentOrder;
     const deliveryOtp = assignedOrder.otp;
 
     // Ensure the order has not already been delivered
     if (currentOrder.status === 'delivered') {
+      console.warn('Order already delivered........');
       return res.status(400).json({ message: 'Order is already delivered' });
     }
-
     // Prevent status reversal from 'picked' to 'active'
     if (currentOrder.status === 'picked' && status === 'active') {
+      console.warn('Invalid status change: picked -> active for orderId:', orderId);
       return res.status(400).json({ message: 'Cannot revert to active from picked' });
     }
+    console.log('Updating status to:', status);
 
     // Update the order status in both the Order and AssignedOrder tables
     await Promise.all([
@@ -210,10 +235,12 @@ exports.updateOrderStatus = async (req, res) => {
 
     // Handle the case when the status is 'delivered'
     if (status === 'delivered') {
+      console.log('Order delivered, updating driver availability for driverUserId:', driverUserId);
       // Update driver availability
       const driver = await DeliveryBoy.findOne({ where: { employee_id: driverUserId } });
       if (driver) {
         await driver.update({ available: 'available' });
+        console.log('Driver availability updated:', driver);
       }
       const customerDeliveredMessage =  createEmailTemplate(
         'Order Successfully Delivered',
@@ -222,9 +249,11 @@ exports.updateOrderStatus = async (req, res) => {
          Thank you for choosing TURTU! We hope you enjoy your purchase.`
     );
     await sendEmail(customerEmail, 'Order Successfully Delivered', customerDeliveredMessage);
-    }
+    console.log('Delivery confirmation email sent to customer:', customerEmail);  
+  }
     // Handle the case when the status is 'picked'
     if (status === 'picked') {
+      console.log('Order picked, sending OTP email to customer:', customerEmail);
 // Prepare the body content with HTML formatting
     const customerOtpBody = `
     Dear ${customerName},<br><br>
@@ -237,9 +266,9 @@ exports.updateOrderStatus = async (req, res) => {
 const customerOtpMessage =  createEmailTemplate('Your Delivery OTP', customerOtpBody);
 // Send the email
 await sendEmail(customerEmail, 'Your Delivery OTP', customerOtpMessage);
-
-    }
-
+console.log('OTP email sent to customer:', customerEmail);
+}
+  console.log('Order status updated successfully');
     // Return a success response
     res.status(200).json({ message: 'Order status updated successfully' });
   } catch (err) {
@@ -251,22 +280,27 @@ await sendEmail(customerEmail, 'Your Delivery OTP', customerOtpMessage);
 
 exports.verifyDeliveryOtp = async (req, res) => {
   const { orderId, providedOtp } = req.body;
-
+ console.log('Verify Delivery OTP Request....');
   if (!orderId || !providedOtp) {
+    console.warn('Missing required parameters:', { orderId, providedOtp });
     return res.status(400).json({ message: 'Order ID and OTP are required' });
   }
 
   try {
+    console.log('Fetching assigned order for orderId:', orderId);
     const assignedOrder = await AssignedOrder.findOne({ where: { order_id: orderId } });
     if (!assignedOrder) {
+      console.warn('Assigned order not found for orderId:', orderId);
       return res.status(404).json({ message: 'Assigned order not found' });
     }
 
     if (assignedOrder.otp !== providedOtp) {
+      console.warn('Invalid OTP provided for orderId:', orderId);
       return res.status(400).json({ message: 'Invalid OTP' });
     }
 
     await AssignedOrder.update({ otp: null }, { where: { order_id: orderId } });
+    console.log('OTP cleared for orderId:', orderId);
     res.status(200).json({ message: 'OTP verified successfully',valid: true  });
   } catch (err) {
     console.error('Error verifying OTP:', err);

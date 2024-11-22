@@ -10,6 +10,7 @@ const axios = require('axios');
 // Fetch customer data by phone number
 exports.getCustomerData = async (req, res) => {
     const { phoneNumber } = req.params;
+    console.log('Fetching customer data for phone number:', phoneNumber);
 
     try {
         const customer = await Customer.findOne({
@@ -18,8 +19,10 @@ exports.getCustomerData = async (req, res) => {
         });
 
         if (customer) {
+            console.log('Customer data found');
             res.json(customer);
         } else {
+            console.log('Customer not found for phone number:', phoneNumber);
             res.status(404).json({ message: 'Customer not found' });
         }
     } catch (err) {
@@ -31,6 +34,7 @@ exports.getCustomerData = async (req, res) => {
 // Fetch user data by user ID
 exports.getUserData = async (req, res) => {
     const { userId } = req.params;
+    console.log('Fetching user data for userId:', userId);
 
     try {
         const user = await Employee.findByPk(userId, {
@@ -38,8 +42,10 @@ exports.getUserData = async (req, res) => {
         });
 
         if (user) {
+            console.log('User data found:', user);
             res.json(user);
         } else {
+            console.log('User not found for userId:', userId);
             res.status(404).json({ message: 'User not found' });
         }
     } catch (err) {
@@ -50,6 +56,7 @@ exports.getUserData = async (req, res) => {
 
 // Fetch available drivers
 exports.getAvailableDrivers = async (req, res) => {
+    console.log('Fetching available drivers');
     try {
         const drivers = await DeliveryBoy.findAll({
             where: {
@@ -59,8 +66,10 @@ exports.getAvailableDrivers = async (req, res) => {
         });
 
         if (drivers.length > 0) {
+            console.log('Available drivers found:', drivers);
             res.json(drivers);
         } else {
+            console.log('No available drivers found');
             res.status(404).json({ message: 'No available drivers found' });
         }
     } catch (err) {
@@ -71,10 +80,12 @@ exports.getAvailableDrivers = async (req, res) => {
 
 // Fetch all pricing records
 async function getPricing() {
+    console.log('Fetching pricing data');
     return await Pricing.findAll();
 }
 
 async function calculateDistanceFare(distance) {
+    console.log('Calculating distance fare for distance:', distance);
     const pricing = await getPricing();
     const distancePricing = pricing.find(p => p.weight_bracket_start === 0);
 
@@ -101,33 +112,40 @@ async function calculateDistanceFare(distance) {
         // Calculate total distance fare including the additional charge
         distanceFare = baseFare + regularExtraFare + additionalCharge;
     }
-
+    console.log('Distance fare details:', { baseFare, extraFarePerKm, distanceFare, additionalCharge });
     return { baseFare, extraFarePerKm, distanceFare, additionalCharge };
 }
 
 async function calculateWeightFare(weight) {
+    console.log('Calculating weight fare for weight:', weight);
     const pricing = await getPricing();
     const weightPricing = pricing.find(p => weight > p.weight_bracket_start && weight <= p.weight_bracket_end);
 
     return weightPricing ? weightPricing.weight_fare : 0;
+   
 }
-6
+
 async function calculateTotalFare(distance, weight) {
+    console.log('Calculating total fare for distance:', distance, 'and weight:', weight);
     const { baseFare, extraFarePerKm, distanceFare, additionalCharge } = await calculateDistanceFare(distance);
     const weightFare = await calculateWeightFare(weight);
     const totalFare = Math.ceil(distanceFare + weightFare); // Round up total fare
 
+    console.log('Total fare details:', { totalFare, baseFare, extraFarePerKm, weightFare, additionalCharge });
     return { totalFare, baseFare, extraFarePerKm, weightFare, additionalCharge };
 }
 
 exports.calculateFare = async (req, res) => {
     const { distance, weight } = req.body;
+    console.log('Calculating fare with input:', { distance, weight });
 
     if (typeof distance !== 'number' || distance < 0) {
+        console.log('Invalid distance provided');
         return res.status(400).json({ message: 'Invalid distance provided.' });
     }
 
     if (typeof weight !== 'number' || weight < 0) {
+        console.log('Invalid weight provided');
         return res.status(400).json({ message: 'Invalid weight provided.' });
     }
 
@@ -151,15 +169,17 @@ exports.calculateFare = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
     const { userId } = req.params;
-  
+    console.log('Fetching user data for userId:', userId);
     try {
       const user = await Employee.findByPk(userId, {
         attributes: ['name', 'phonenumber', 'email', 'role'],
       });
   
       if (user) {
+        console.log('User data found:', user);
         res.json(user);
       } else {
+        console.log('User not found for userId:', userId);
         res.status(404).json({ message: 'User not found' });
       }
     } catch (err) {
@@ -170,19 +190,22 @@ exports.getUserById = async (req, res) => {
   // Get distance matrix using Google Places API with caching
   exports.getDistanceMatrix = async (req, res) => {
       const { origins, destinations } = req.query;
-  
+      console.log('Request received for getDistanceMatrix:', { origins, destinations });
+
       // Check if the result is cached
       const cachedResult = await DistanceCache.findOne({
           where: { origin: origins, destination: destinations },
       });
   
       if (cachedResult) {
+        console.log('Using cached result for distance matrix:', cachedResult);
           return res.json({
             distance_value: cachedResult.distance_value,
           });
       }
       // If not cached, call Google Distance Matrix API
       const googlePlacesKey = process.env.GOOGLE_PLACES_API_KEY;
+      console.log('Fetching distance matrix from Google API...');
       try {
           const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
               params: {
@@ -193,12 +216,14 @@ exports.getUserById = async (req, res) => {
           });
           const distance = response.data.rows[0].elements[0].distance.value;
           const distanceInKm = (distance / 1000).toFixed(1);  // Convert meters to kilometers
+          console.log('Distance fetched from Google API:', distanceInKm, 'km');
           // Store result in cache
           await DistanceCache.create({
               origin: origins,
               destination: destinations,
               distance_value: distanceInKm,  
           });
+          console.log('Result cached successfully.');
           res.json({ distance_value: distanceInKm });
       } catch (error) {
           console.error('Error calculating distance:', error);
@@ -207,6 +232,7 @@ exports.getUserById = async (req, res) => {
   };
 exports.getAutocomplete = async (req, res) => {
     const { input } = req.query;
+    console.log('Request received for getAutocomplete:', { input });
     try {
         // Check cache for autocomplete data
         const cachedAutocomplete = await AutocompleteCache.findOne({
@@ -226,6 +252,7 @@ exports.getAutocomplete = async (req, res) => {
         const location = '15.8497,74.4977'; // Latitude and Longitude of Belagavi, Karnataka
         const radius = 30000; // 10 kilometers radius
 
+        console.log('Fetching autocomplete data from Google API...');
         const response = await axios.get('https://maps.googleapis.com/maps/api/place/autocomplete/json', {
             params: {
                 input,
@@ -236,11 +263,14 @@ exports.getAutocomplete = async (req, res) => {
                 strictbounds: true,
             },
         });
+        console.log('Autocomplete data fetched from Google API:', response.data.predictions);
         // Save to cache
         await AutocompleteCache.create({
             input,
             response: response.data.predictions
-        });        res.json({
+        });  
+        console.log('Autocomplete data cached successfully.');
+        res.json({
             predictions: response.data.predictions,
             source: 'api'
         });

@@ -42,6 +42,18 @@ const User = sequelize.define('User', {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
     },
+    reset_otp: {
+        type: DataTypes.STRING(6),
+        allowNull: true,
+    },
+    reset_otp_expiry: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
+    is_otp_verified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
     role: {
         type: DataTypes.STRING(10),
         defaultValue: 'user',
