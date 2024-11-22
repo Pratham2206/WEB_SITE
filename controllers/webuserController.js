@@ -78,29 +78,29 @@ exports.getCareerApplications = async (req, res) => {
     }
 };
 
-// Download resume as PDF only
-exports.downloadResume = async (req, res) => {
-    const { applicationId } = req.params;
+// // Download resume as PDF only
+// exports.downloadResume = async (req, res) => {
+//     const { applicationId } = req.params;
 
-    try {
-        const application = await CareerApplication.findByPk(applicationId);
-        if (!application) {
-            return res.status(404).json({ status: 'error', message: 'Application not found.' });
-        }
+//     try {
+//         const application = await CareerApplication.findByPk(applicationId);
+//         if (!application) {
+//             return res.status(404).json({ status: 'error', message: 'Application not found.' });
+//         }
 
-        const resumeData = application.resume_data;
-        const resumeFilename = `${application.resume_filename.split('.').slice(0, -1).join('.')}.pdf`; // Force PDF extension
+//         const resumeData = application.resume_data;
+//         const resumeFilename = `${application.resume_filename.split('.').slice(0, -1).join('.')}.pdf`; // Force PDF extension
 
-        // Set the response headers to indicate PDF content type and force download as PDF
-        res.set('Content-Type', 'application/pdf');
-        res.set('Content-Disposition', `inline; filename="${resumeFilename}"`);
+//         // Set the response headers to indicate PDF content type and force download as PDF
+//         res.set('Content-Type', 'application/pdf');
+//         res.set('Content-Disposition', `inline; filename="${resumeFilename}"`);
 
-        return res.send(resumeData);
-    } catch (error) {
-        console.error('Error downloading resume:', error);
-        return res.status(500).json({ status: 'error', message: 'An error occurred while downloading the resume.' });
-    }
-};
+//         return res.send(resumeData);
+//     } catch (error) {
+//         console.error('Error downloading resume:', error);
+//         return res.status(500).json({ status: 'error', message: 'An error occurred while downloading the resume.' });
+//     }
+// };
 
 exports.downloadResume = async (req, res) => {
     const { applicationId } = req.params;

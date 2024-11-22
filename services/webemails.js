@@ -240,7 +240,7 @@ const createEmailTemplate = (content) => {
 // General email sending function
 const sendEmail = async (to, subject, htmlContent) => {
     const mailOptions = {
-        from: `"TURTU Services" <${process.env.EMAIL_USER}>`,
+        from: `"TURTU" <${process.env.EMAIL_USER}>`,
         to,
         subject,
         html: htmlContent,
@@ -287,7 +287,7 @@ const sendCareerEmail = async (recipientEmail, username, profile, resumeFilename
     `;
 
     const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: `"TURTU" <${process.env.EMAIL_USER}>`,
         to: recipientEmail,
         subject: 'Career Application Submitted',
         html: createEmailTemplate(content),
