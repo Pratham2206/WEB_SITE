@@ -42,7 +42,7 @@ exports.careerApplication = [
             }
 
             const resumeData = resume.buffer; // Resume binary data
-            onsole.log('Resume data received, preparing to save to database.');
+            console.log('Resume data received, preparing to save to database.');
 
             // Save to database
             const application = await CareerApplication.create({
