@@ -6,6 +6,13 @@ require('dotenv').config();
 const {sendEmail, createEmailTemplate} = require('../services/emailConformations');
 
 
+
+// Initialize Razorpay instance
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID , // Replace with your actual key_id
+    key_secret: process.env.RAZORPAY_KEY_SECRET , // Replace with your actual key_secret
+});
+
 // Function to handle order submission
 const submitOrder = async (req, res) => {
     const {
@@ -96,17 +103,12 @@ const submitOrder = async (req, res) => {
     }
 };
 
-// Initialize Razorpay instance
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID , // Replace with your actual key_id
-    key_secret: process.env.RAZORPAY_KEY_SECRET , // Replace with your actual key_secret
-});
 
 // Razorpay order creation function
 const createRazorpayOrder = async (req, res) => {
     try {
         // Log the request body to inspect incoming data
-        console.log('Request received to create Razorpay order with data:', req.body);
+        console.log('Request received to create Razorpay order with data....');
 
         const { amount, currency, receipt } = req.body;
 
@@ -122,25 +124,10 @@ const createRazorpayOrder = async (req, res) => {
             currency: currency,
             receipt: receipt || `receipt#${Date.now()}`, // Default receipt if not provided
         };
-
-        // Log options before making the Razorpay API call
-        console.log('Razorpay order options:', options);
-
-        // Check if Razorpay instance is initialized properly
-        console.log('Razorpay instance:', razorpay);
-
-        // Log environment variables (only for debugging, remove in production)
-        console.log('Environment variables:', {
-            key_id: process.env.RAZORPAY_KEY_ID,
-            key_secret: process.env.RAZORPAY_KEY_SECRET,
-        });
-
         // Create the Razorpay order
         const razorpayOrder = await razorpay.orders.create(options);
-
         // Log the successful response from Razorpay
-        console.log('Razorpay order created successfully:', razorpayOrder);
-
+        console.log('Razorpay order created successfully.....');
         // Respond with the Razorpay order details
         res.json(razorpayOrder);
     } catch (error) {
@@ -149,7 +136,6 @@ const createRazorpayOrder = async (req, res) => {
             'Error creating Razorpay order:',
             error.response ? error.response.data : error.message
         );
-
         // Return error response to the client
         res.status(500).json({ 
             error: 'Internal Server Error',
@@ -241,8 +227,6 @@ const userSubmitOrder = async (req, res) => {
             order = await Order.create(orderData);
             console.log('Order Created for "Delivery Now"');
              // Fetch the created order to verify it's stored correctly
-    const createdOrder = await Order.findByPk(order.id);
-    console.log('Created Order:', createdOrder);
         } else if (serviceType === "Schedule for Later") {
             if (!pickupDate || !pickupTime) {
                 console.error('Pickup date and time are missing for scheduled delivery');
@@ -252,10 +236,6 @@ const userSubmitOrder = async (req, res) => {
             orderData.pickupTime = pickupTime;
             order = await Order.create(orderData);
             console.log('Order Created for "Schedule for Later"');
-
-              // Fetch the created order to verify it's stored correctly
-    const createdOrder = await Order.findByPk(order.id);
-    console.log('Created Order:', createdOrder);
         } else {
             console.error('Invalid service type:', serviceType);
             return res.status(400).json({ error: 'Invalid service type' });
