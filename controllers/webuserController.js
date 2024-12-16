@@ -1,3 +1,4 @@
+const Joi = require('joi');
 const Contact = require('../models/contact');
 require('dotenv').config();
 const CareerApplication = require('../models/careerApplication');
@@ -5,178 +6,241 @@ const { sendCareerEmail, sendQueryContactEmail } = require('../services/webemail
 const multer = require('multer');
 const upload = multer({ limits: { fileSize: 5 * 1024 * 1024 } }); // Set limit to 5 MB
 const { tokenRequired, allowedFile } = require('../middlewares/webMiddleware'); // Import your middleware
+const { logWithTracker } = require('../services/loggerService');
 
-// Career application
-exports.careerApplication = [
+// Define Joi schema for validating email and phone number
+const careerApplicationSchema = Joi.object({
+    email: Joi.string().email().required().messages({
+      'string.email': 'Invalid email format.',
+      'any.required': 'Email is required.',
+    }),
+    phone_number: Joi.string()
+      .pattern(/^\d{10}$/)
+      .required()
+      .messages({
+        'string.pattern.base': 'Phone number must be a valid 10-digit number.',
+        'any.required': 'Phone number is required.',
+      }),
+    profile: Joi.string().required().messages({
+      'any.required': 'Profile is required.',
+    }),
+  });
+  
+  exports.careerApplication = [
     tokenRequired,
     upload.single('resume'), // Middleware to handle the single file upload with the field name 'resume'
     async (req, res) => {
-        const { email, phone_number, profile } = req.body; // Extract form data
-        const resume = req.file; // Extract the uploaded file
-        console.log('Received form data...');
-        // Check for required fields
-        if (!email || !phone_number || !profile || !resume) {
-            console.log('Missing required fields');
-            return res.status(400).json({ status: 'error', message: 'All fields are required.' });
+      const { email, phone_number, profile } = req.body; // Extract form data
+      const resume = req.file; // Extract the uploaded file
+      const trackerId = req.trackerId; // Assuming trackerId is passed along with the request
+  
+      logWithTracker('info', 'Received form data for career application', trackerId, 'website-service');
+  
+      // Validate email and phone number using Joi
+      const { error } = careerApplicationSchema.validate({ email, phone_number, profile });
+      if (error) {
+        logWithTracker('warn', `Validation failed: ${error.message}`, trackerId, 'website-service');
+        return res.status(400).json({
+          status: 'error',
+          message: 'Validation failed',
+          errors: error.details.map((err) => err.message),
+          trackerId,
+        });
+      }
+  
+      // Check if the resume file is provided
+      if (!resume) {
+        logWithTracker('warn', 'Resume file is missing', trackerId, 'website-service');
+        return res.status(400).json({ status: 'error', message: 'Resume file is required.', trackerId });
+      }
+  
+      // Check if the file type is allowed
+      if (!allowedFile(resume.originalname)) {
+        logWithTracker('warn', `Invalid file format for resume: ${resume.originalname}`, trackerId, 'website-service');
+        return res.status(400).json({ status: 'error', message: 'Invalid file format for resume.', trackerId });
+      }
+  
+      // Check for file size
+      if (resume.size > 5 * 1024 * 1024) {
+        logWithTracker('warn', `File too large: ${resume.size}`, trackerId, 'website-service');
+        return res.status(400).json({ status: 'error', message: 'Resume file is too large. Max size is 5MB.', trackerId });
+      }
+  
+      try {
+        const userId = req.user.user_id; // Get user ID from token
+        logWithTracker('info', `User ID from token: ${userId}`, trackerId, 'website-service'); // Log user ID to verify
+  
+        if (!userId) {
+          logWithTracker('warn', 'User ID is missing from token', trackerId, 'website-service');
+          return res.status(400).json({ status: 'error', message: 'User ID is missing from token.', trackerId });
         }
-
-        // Check if the file type is allowed
-        if (!allowedFile(resume.originalname)) {
-            console.log('Invalid file format for resume:', resume.originalname);
-            return res.status(400).json({ status: 'error', message: 'Invalid file format for resume.' });
-        }
-
-        // Check for file size (this is already handled by multer, but you can check here too)
-        if (resume.size > 5 * 1024 * 1024) {
-            console.log('File too large:', resume.size);
-            return res.status(400).json({ status: 'error', message: 'Resume file is too large. Max size is 5MB.' });
-        }
-
-        try {
-            const userId = req.user.user_id;  // Change this line to access user_id instead of id
-            console.log("User ID from token:", userId);  // Log user ID to verify it
-
-            if (!userId) {
-                console.log('User ID is missing from token');
-                return res.status(400).json({ status: 'error', message: 'User ID is missing from token.' });
-            }
-
-            const resumeData = resume.buffer; // Resume binary data
-            console.log('Resume data received, preparing to save to database.');
-
-            // Save to database
-            const application = await CareerApplication.create({
-                user_id: userId,
-                email,
-                phone_number,
-                profile,
-                resume_filename: resume.originalname,
-                resume_data: resumeData
-            });
-            console.log('Application saved to database..');
-            // Send email notification
-            await sendCareerEmail(email, req.user.username, profile, resume.originalname, resumeData);
-            console.log('Career application email sent to:', email);
-            return res.status(201).json({ status: 'success', message: 'Application submitted successfully!' });
-        } catch (error) {
-            console.error('Error occurred:', error);
-            return res.status(500).json({ status: 'error', message: 'An error occurred while saving your application.' });
-        }
-    }
-];
+  
+        const resumeData = resume.buffer; // Resume binary data
+        logWithTracker('info', 'Resume data received, preparing to save to database', trackerId, 'website-service');
+  
+        // Save to database
+        const application = await CareerApplication.create({
+          user_id: userId,
+          email,
+          phone_number,
+          profile,
+          resume_filename: resume.originalname,
+          resume_data: resumeData,
+        });
+        logWithTracker('info', 'Application saved to database', trackerId, 'website-service');
+  
+        // Send email notification
+        await sendCareerEmail(email, req.user.username, profile, resume.originalname, resumeData);
+        logWithTracker('info', `Career application email sent to: ${email}`, trackerId, 'website-service');
+  
+        return res.status(201).json({
+          status: 'success',
+          message: 'Application submitted successfully!',
+          trackerId,
+        });
+      } catch (error) {
+        logWithTracker('error', `Error occurred while submitting career application: ${error.message}`, trackerId, 'website-service');
+        return res.status(500).json({
+          status: 'error',
+          message: 'An error occurred while saving your application.',
+          trackerId,
+        });
+      }
+    },
+  ];
 
 // Get all career applications
 exports.getCareerApplications = async (req, res) => {
+    const trackerId = req.trackerId; // Assuming trackerId is passed along with the request
+    logWithTracker('info', 'Fetching all career applications', trackerId,'website-service');
+
     try {
-        console.log('Fetching all career applications...');
         const applications = await CareerApplication.findAll();
-        console.log('Fetched career applications....');
-        return res.json({ status: 'success', data: applications });
+        logWithTracker('info', 'Fetched all career applications', trackerId,'website-service');
+        return res.json({ status: 'success', data: applications , trackerId});
     } catch (error) {
-        console.error('Error fetching applications:', error);
-        return res.status(500).json({ status: 'error', message: 'An error occurred while fetching applications.' });
+        logWithTracker('error', `Error fetching career applications: ${error.message}`, trackerId,'website-service');
+        return res.status(500).json({ status: 'error', message: 'An error occurred while fetching applications.', trackerId });
     }
 };
 
-// // Download resume as PDF only
-// exports.downloadResume = async (req, res) => {
-//     const { applicationId } = req.params;
-
-//     try {
-//         const application = await CareerApplication.findByPk(applicationId);
-//         if (!application) {
-//             return res.status(404).json({ status: 'error', message: 'Application not found.' });
-//         }
-
-//         const resumeData = application.resume_data;
-//         const resumeFilename = `${application.resume_filename.split('.').slice(0, -1).join('.')}.pdf`; // Force PDF extension
-
-//         // Set the response headers to indicate PDF content type and force download as PDF
-//         res.set('Content-Type', 'application/pdf');
-//         res.set('Content-Disposition', `inline; filename="${resumeFilename}"`);
-
-//         return res.send(resumeData);
-//     } catch (error) {
-//         console.error('Error downloading resume:', error);
-//         return res.status(500).json({ status: 'error', message: 'An error occurred while downloading the resume.' });
-//     }
-// };
-
+// Download resume
 exports.downloadResume = async (req, res) => {
     const { applicationId } = req.params;
     const { download } = req.query;  // Check if the 'download' query parameter is present
+    const trackerId = req.trackerId; // Assuming trackerId is passed along with the request
+    logWithTracker('info', `Attempting to download resume for application ID: ${applicationId}`, trackerId,'website-service');
 
     try {
-        console.log(`Attempting to download resume for application ID: ${applicationId}`);
         const application = await CareerApplication.findByPk(applicationId);
         if (!application) {
-            console.log(`Application with ID ${applicationId} not found.`);
-            return res.status(404).json({ status: 'error', message: 'Application not found.' });
+            logWithTracker('warn', `Application with ID ${applicationId} not found`, trackerId,'website-service');
+            return res.status(404).json({ status: 'error', message: 'Application not found.', trackerId });
         }
 
         const resumeData = application.resume_data;
         const resumeFilename = `${application.resume_filename.split('.').slice(0, -1).join('.')}.pdf`; // Force PDF extension
-        console.log(`Preparing to send resume: ${resumeFilename}`);
+        logWithTracker('info', `Preparing to send resume: ${resumeFilename}`, trackerId,'website-service');
 
         // Set the response headers to indicate PDF content type
         res.set('Content-Type', 'application/pdf');
 
         if (download === 'true') {
-            console.log(`Forcing download of the resume`);
-            // If 'download=true' is passed, force the download
+            logWithTracker('info', 'Forcing download of the resume', trackerId,'website-service');
             res.set('Content-Disposition', `attachment; filename="${resumeFilename}"`);
         } else {
-            console.log(`Displaying the resume in the browser`);
-            // Otherwise, just display the PDF in the browser
+            logWithTracker('info', 'Displaying the resume in the browser', trackerId,'website-service');
             res.set('Content-Disposition', `inline; filename="${resumeFilename}"`);
         }
 
         // Send the resume data (PDF) to the client
-        return res.send(resumeData);
+        return res.send(resumeData, trackerId);
     } catch (error) {
-        console.error('Error downloading/viewing resume:', error);
-        return res.status(500).json({ status: 'error', message: 'An error occurred while downloading/viewing the resume.' });
+        logWithTracker('error', `Error downloading/viewing resume for application ID: ${applicationId}: ${error.message}`, trackerId,'website-service');
+        return res.status(500).json({ status: 'error', message: 'An error occurred while downloading/viewing the resume.', trackerId });
     }
 };
 
 
-// Contact submission
-exports.contact = async (req, res) => {
+// Define validation schema
+const contactSchema = Joi.object({
+    username: Joi.string()
+      .pattern(/^[a-zA-Z\s]+$/)
+      .required()
+      .messages({
+        'string.pattern.base': 'Username must contain only letters and spaces.',
+        'any.required': 'Username is required.',
+      }),
+    email: Joi.string()
+      .email()
+      .required()
+      .messages({
+        'string.email': 'Invalid email format.',
+        'any.required': 'Email is required.',
+      }),
+    phone_number: Joi.string()
+      .pattern(/^\d{10}$/)
+      .required()
+      .messages({
+        'string.pattern.base': 'Phone number must be a valid 10-digit number.',
+        'any.required': 'Phone number is required.',
+      }),
+    queries: Joi.string()
+      .min(10)
+      .required()
+      .messages({
+        'string.min': 'Queries must be at least 10 characters long.',
+        'any.required': 'Queries are required.',
+      }),
+  });
+  
+  exports.contact = async (req, res) => {
     const { username, email, phone_number, queries } = req.body;
-
-    if (!username || !email || !phone_number || !queries) {
-        console.log('Missing required fields in contact form submission.'); 
-        return res.status(400).json({ status: 'error', message: 'All fields are required.' });
+    const trackerId = req.trackerId; // Assuming trackerId is passed along with the request
+  
+    // Validate request body
+    const { error } = contactSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+      logWithTracker('warn', 'Validation failed for contact form submission', trackerId, 'website-service');
+      return res.status(400).json({
+        status: 'error',
+        message: 'Validation failed.',
+        errors: error.details.map((err) => err.message),
+        trackerId,
+      });
     }
-
+  
     try {
-        console.log('Creating new contact entry....'); 
-        const contactEntry = await Contact.create({ username, email, phone_number, queries });
-        console.log(`Contact entry created successfully with ID: ${contactEntry.id}`);  // Log successful entry creation
-
-        // Send email notification
-        await sendQueryContactEmail(email, username, queries);
-        console.log(`Query contact email sent to: ${email}`);  // Log email sent action
-
-        return res.status(201).json({ 
-            status: 'success', 
-            message: 'Your message has been sent!' 
-        });
+      logWithTracker('info', 'Creating new contact entry....', trackerId, 'website-service');
+      const contactEntry = await Contact.create({ username, email, phone_number, queries });
+      logWithTracker('info', `Contact entry created successfully with ID: ${contactEntry.id}`, trackerId, 'website-service'); // Log successful entry creation
+  
+      // Send email notification
+      await sendQueryContactEmail(email, username, queries);
+      logWithTracker('info', `Query contact email sent to: ${email}`, trackerId, 'website-service'); // Log email sent action
+  
+      return res.status(201).json({
+        status: 'success',
+        trackerId,
+        message: 'Your message has been sent!',
+      });
     } catch (error) {
-        console.error('Error during contact creation:', error);
-        return res.status(500).json({ status: 'error', message: 'An error occurred while creating contact.' });
+      logWithTracker('error', `Error during contact creation: ${error.message}`, trackerId, 'website-service');
+      return res.status(500).json({ status: 'error', message: 'An error occurred while creating contact.', trackerId });
     }
-};
+  };
 
 // Get contact queries
 exports.getContactQueries = async (req, res) => {
+    const trackerId = req.trackerId; // Assuming trackerId is passed along with the request
+    logWithTracker('info', 'Fetching all contact queries...', trackerId,'website-service');
+
     try {
-        console.log('Fetching all contact queries...');
-        console.log('Fetched contact queries...'); 
         const contacts = await Contact.findAll();
-        return res.json({ status: 'success', data: contacts });
+        logWithTracker('info', 'Fetched contact queries...', trackerId,'website-service'); 
+        return res.json({ status: 'success', data: contacts, trackerId });
     } catch (error) {
-        console.error('Error fetching contacts:', error);
-        return res.status(500).json({ status: 'error', message: 'An error occurred while fetching contacts.' });
+        logWithTracker('error', `Error fetching contacts: ${error.message}`, trackerId,'website-service');
+        return res.status(500).json({ status: 'error', message: 'An error occurred while fetching contacts.', trackerId });
     }
 };

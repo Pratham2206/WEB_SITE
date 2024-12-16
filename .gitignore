@@ -1,6 +1,10 @@
 .env
 node_modules
 
+pm2 start server.js -i max
+pm2 stop all
+pm2 delete server
+
 
 
 

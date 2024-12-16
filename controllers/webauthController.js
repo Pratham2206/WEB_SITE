@@ -1,4 +1,5 @@
 require('dotenv').config();
+const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const moment = require('moment-timezone');
@@ -6,48 +7,71 @@ const randomize = require('randomatic');
 const {sendOtpEmail, sendPasswordResetEmail } = require('../services/webemails');
 const User = require('../models/user');
 const { Op } = require('sequelize');
-
+const { logWithTracker } = require('../services/loggerService');
 
 const JWT_SECRET = process.env.JWT_SECRET; // Ensure you have this in your config file
 
-const validatePassword = (password) => {
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+=!]).{8,}$/;
-    return passwordRegex.test(password);
-};
+const userSchema = Joi.object({
+    username: Joi.string()
+    .trim() // Removes leading and trailing spaces
+    .pattern(/^(?!\s*$)[a-zA-Z\s]+$/)
+    .required()
+    .messages({
+      'string.pattern.base': 'Username must contain only letters and spaces, and cannot be empty or just spaces.',
+      'any.required': 'Username is required.',
+    }),
+  
+    email: Joi.string().email().trim().required().messages({
+        'string.email': 'Invalid email format.',
+        'any.required': 'Email is required.',
+    }),
+    phone_number: Joi.string().pattern(/^\d{10}$/).trim().required().messages({
+        'string.pattern.base': 'Phone number must be 10 digits.',
+        'any.required': 'Phone number is required.',
+    }),
+    password: Joi.string()
+        .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/)
+        .required()
+        .messages({
+            'string.pattern.base': 'Password must be at least 8 characters long, include one uppercase letter and one number.',
+            'any.required': 'Password is required.',
+        }),
+    confirm_password: Joi.string().valid(Joi.ref('password')).required().messages({
+        'any.only': 'Passwords do not match.',
+        'any.required': 'Confirm password is required.',
+    }),
+});
 
-// Register new user
 exports.register = async (req, res) => {
-    const { username, email, phone_number, password, confirm_password } = req.body;
-    console.log('Registration request received.....');
-    if (!validatePassword(password)) {
-        console.warn('Password does not meet the requirements.');
-        return res.status(400).json({ status: 'error', message: 'Password does not meet the requirements.' });
+    const trackerId = req.trackerId; // Assuming trackerId is passed with the request
+    logWithTracker('info', 'Registration request received', trackerId, 'website-service');
+    // Validate request data using Joi
+    const { error, value } = userSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+        logWithTracker('warn', 'Validation failed', trackerId, 'website-service');
+        return res.status(400).json({
+            status: 'error',
+            message: 'Validation failed',
+            errors: error.details.map((err) => err.message),
+            trackerId,
+        });
     }
-
-    if (password !== confirm_password) {
-        console.warn('Passwords do not match for:', email);
-        return res.status(400).json({ status: 'error', message: 'Passwords do not match.' });
-    }
-
+    const { username, email, phone_number, password } = value;
     try {
-        console.log('Checking for existing user with email or phone_number...');
+        logWithTracker('info', 'Checking for existing user with email or phone_number...', trackerId, 'website-service');
         const existingUser = await User.findOne({
             where: {
                 [Op.or]: [{ email }, { phone_number }],
             },
         });
-
         if (existingUser) {
-            console.warn('User already exists with email or phone_number......');
-            return res.status(400).json({ status: 'error', message: 'Email or phone number already exists.' });
+            logWithTracker('warn', 'User already exists with email or phone_number', trackerId, 'website-service');
+            return res.status(400).json({ status: 'error', message: 'Email or phone number already exists.', trackerId });
         }
-
         const hashedPassword = await bcrypt.hash(password, 10);
         const otp = randomize('0', 6); // Generate a 6-digit OTP
         const otpExpiry = moment().add(5, 'minutes').toDate();
-
         const role = 'user';
-
         const newUser = await User.create({
             username,
             email,
@@ -59,33 +83,34 @@ exports.register = async (req, res) => {
             registration_date: new Date(),
             role,
         });
-        console.log('New user created successfully.....');
+        logWithTracker('info', 'New user created successfully', trackerId, 'website-service');
         await sendOtpEmail(email, otp);
 
-        res.status(201).json({ status: 'success', message: 'User registered successfully! Check your email for the OTP.' });
+        res.status(201).json({ status: 'success', message: 'User registered successfully! Check your email for the OTP.', trackerId });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ status: 'error', message: 'Server error.' });
+        logWithTracker('error', `Error during registration process: ${error.message}`, trackerId, 'website-service');
+        res.status(500).json({ status: 'error', message: 'Server error.', trackerId });
     }
 };
 
 // Resend OTP
 exports.resendOtp = async (req, res) => {
     const { email } = req.body;
+    const trackerId = req.trackerId; // Assuming trackerId is passed along with the request
+    logWithTracker('info', `Attempting to resend OTP for email: ${email}`, trackerId,'website-service');
 
     try {
-        console.log(`Attempting to resend OTP for email: ${email}`);
         const user = await User.findOne({ where: { email } });
 
         if (!user) {
-            console.log(`User not found with email: ${email}`);
-            return res.status(404).json({ status: 'error', message: 'User not found.' });
+            logWithTracker('warn', `User not found with email: ${email}`, trackerId,'website-service');
+            return res.status(404).json({ status: 'error', message: 'User not found.' , trackerId});
         }
 
         const otpExpiry = moment(user.otp_expiry).toDate();
         if (moment().isBefore(otpExpiry)) {
-            console.log('OTP is still valid for user:', email);
-            return res.status(400).json({ status: 'error', message: 'OTP is still valid. Please check your email.' });
+            logWithTracker('warn', `OTP is still valid for email: ${email}`, trackerId,'website-service');
+            return res.status(400).json({ status: 'error', message: 'OTP is still valid. Please check your email.', trackerId });
         }
 
         const newOtp = randomize('0', 6);
@@ -94,69 +119,81 @@ exports.resendOtp = async (req, res) => {
         user.otp = newOtp;
         user.otp_expiry = newOtpExpiry;
         await user.save(); // Update user with new OTP
-        console.log(`New OTP generated for email: ${email}`);
+        logWithTracker('info', `New OTP generated for email: ${email}`, trackerId,'website-service');
         await sendOtpEmail(email, newOtp);
 
-        res.status(200).json({ status: 'success', message: 'New OTP has been sent to your email.' });
+        res.status(200).json({ status: 'success', message: 'New OTP has been sent to your email.', trackerId });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ status: 'error', message: 'Server error.' });
+        logWithTracker('error', `Error resending OTP for email: ${email} - ${error.message}`, trackerId,'website-service');
+        res.status(500).json({ status: 'error', message: 'Server error.', trackerId });
     }
 };
 
 // Verify OTP
 exports.verifyOtp = async (req, res) => {
     const { email, otp } = req.body;
+    const trackerId = req.trackerId; // Assuming trackerId is passed along with the request
+    logWithTracker('info', `Attempting to verify OTP for email: ${email}`, trackerId,'website-service');
 
     try {
-        console.log(`Attempting to verify OTP for email: ${email}`);
         const user = await User.findOne({ where: { email } });
 
         if (!user) {
-            console.log(`User not found with email: ${email}`);
-            return res.status(404).json({ status: 'error', message: 'User not found.' });
+            logWithTracker('warn', `User not found with email: ${email}`, trackerId,'website-service');
+            return res.status(404).json({ status: 'error', message: 'User not found.', trackerId });
         }
 
         if (user.otp !== otp) {
-            console.log('Invalid OTP provided for user:', email);
-            return res.status(400).json({ status: 'error', message: 'Invalid OTP.' });
+            logWithTracker('warn', `Invalid OTP provided for user: ${email}`, trackerId,'website-service');
+            return res.status(400).json({ status: 'error', message: 'Invalid OTP.', trackerId });
         }
 
         if (moment().isAfter(user.otp_expiry)) {
-            console.log('OTP has expired for user:', email);
-            return res.status(400).json({ status: 'error', message: 'OTP has expired.' });
+            logWithTracker('warn', `OTP has expired for user: ${email}`, trackerId,'website-service');
+            return res.status(400).json({ status: 'error', message: 'OTP has expired.' , trackerId});
         }
 
         user.is_verified = true; // Mark user as verified
         user.otp = null; // Clear OTP
         user.otp_expiry = null; // Clear OTP expiry
         await user.save(); // Update user
-        console.log(`OTP verified successfully for ${email}. User marked as verified.`);
-        res.status(200).json({ status: 'success', message: 'User has been successfully verified.' });
+        logWithTracker('info', `OTP verified successfully for ${email}. User marked as verified.`, trackerId,'website-service');
+        res.status(200).json({ status: 'success', message: 'User has been successfully verified.', trackerId });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ status: 'error', message: 'Server error.' });
+        logWithTracker('error', `Error verifying OTP for email: ${email} - ${error.message}`, trackerId,'website-service');
+        res.status(500).json({ status: 'error', message: 'Server error.', trackerId });
     }
 };
 
 // User/Admin Login (Hardcoded admin email and password)
 exports.login = async (req, res) => {
     const { email, password } = req.body;
+    const trackerId = req.trackerId; // Assuming trackerId is passed along with the request
+    logWithTracker('info', `Attempting login for email: ${email}`, trackerId,'website-service');
 
     // Hardcoded admin credentials
     const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+    const ADMIN_PASS = process.env.ADMIN_PASS;
 
+        // Validate input
+        if (!email || !password) {
+            logWithTracker('warn', 'Email or password not provided.', trackerId, 'website-service');
+            return res.status(400).json({ 
+                status: 'error', 
+                message: 'Email and password are required.', 
+                trackerId 
+            });
+        }
     try {
-        console.log(`Attempting login for email: ${email}`);
         // Check if it's the admin logging in
-        if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        if (email === ADMIN_EMAIL && password === ADMIN_PASS) {
             const adminToken = jwt.sign(
                 { role: 'admin', email: ADMIN_EMAIL, username: 'Admin' },
                 JWT_SECRET,
                 { expiresIn: '1h' }
             );
 
+            logWithTracker('info', `Admin login successful for email: ${email}`, trackerId,'website-service');
             return res.status(200).json({
                 status: 'success',
                 message: 'Admin login successful!',
@@ -165,6 +202,7 @@ exports.login = async (req, res) => {
                     email: ADMIN_EMAIL,
                     token: adminToken,
                 },
+                trackerId,
             });
         }
 
@@ -172,13 +210,13 @@ exports.login = async (req, res) => {
         const user = await User.findOne({ where: { email } });
 
         if (!user || !(await bcrypt.compare(password, user.password))) {
-            console.log(`Invalid email or password for ${email}`);
-            return res.status(401).json({ status: 'error', message: 'Invalid email or password.' });
+            logWithTracker('warn', `Invalid email or password for ${email}`, trackerId,'website-service');
+            return res.status(401).json({ status: 'error', message: 'Invalid email or password.', trackerId });
         }
 
         if (!user.is_verified) {
-            console.log(`User ${email} is not verified.`);
-            return res.status(403).json({ status: 'error', message: 'Email not verified. Please verify your email.' });
+            logWithTracker('warn', `User ${email} is not verified.`, trackerId,'website-service');
+            return res.status(403).json({ status: 'error', message: 'Email not verified. Please verify your email.' , trackerId});
         }
 
         const token = jwt.sign(
@@ -186,137 +224,50 @@ exports.login = async (req, res) => {
             JWT_SECRET,
             { expiresIn: '1h' }
         );
-        console.log(`Login successful for ${email}. Token generated.`);
+        
+        logWithTracker('info', `Login successful for ${email}. Token generated.`, trackerId,'website-service');
         res.status(200).json({
             status: 'success',
             message: 'Login successful!',
+             trackerId,
             data: {
                 user_id: user.id,
                 username: user.username,
                 email: user.email,
-                phone_number: user.phone_number, // Added phone_number
+                phone_number: user.phone_number,
                 token,
             },
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ status: 'error', message: 'Server error.' });
+        logWithTracker('error', `Error during login for ${email}: ${error.message}`, trackerId,'website-service');
+        res.status(500).json({ status: 'error', message: 'Server error.' , trackerId});
     }
 };
-
-// // Request password reset
-// exports.requestPasswordReset = async (req, res) => {
-//     const { email } = req.body;
-  
-//     if (!email) {
-//       return res.status(400).json({ status: 'error', message: 'Please provide an email address.' });
-//     }
-  
-//     try {
-//       const user = await User.findOne({ where: { email } });
-  
-//       if (!user) {
-//         return res.status(404).json({ status: 'error', message: 'Email not found.' });
-//       }
-  
-//       const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '30m' });
-  
-//       // clientURL will be dynamically assigned based on NODE_ENV
-//       const clientURL = process.env.NODE_ENV === 'production' ? process.env.CLIENT_URL_PROD : process.env.CLIENT_URL_LOCAL;
-//       console.log(`Client URL determined: ${clientURL}`);
-      
-//       const resetLink = `${clientURL}/reset-password/${token}`;  // Generates the correct reset link
-//       await sendPasswordResetEmail(email, resetLink);
-  
-//       res.status(200).json({ status: 'success', message: 'A password reset link has been sent to your email.' });
-//     } catch (error) {
-//       console.error('Error in requestPasswordReset:', error);
-//       res.status(500).json({ status: 'error', message: 'Server error.' });
-//     }
-//   };
-  
-// // Reset password
-// exports.resetPassword = async (req, res) => {
-//     const { token } = req.params;
-//     const { password, confirm_password } = req.body;
-
-//     if (!password || !confirm_password) {
-//         return res.status(400).json({ status: 'error', message: 'Both password fields are required.' });
-//     }
-
-//     if (password !== confirm_password) {
-//         return res.status(400).json({ status: 'error', message: 'Passwords do not match.' });
-//     }
-
-//     try {
-//         const decoded = jwt.verify(token, JWT_SECRET);
-//         const email = decoded.email;
-
-//         const hashedPassword = await bcrypt.hash(password, 10);
-//         const user = await User.findOne({ where: { email } });
-
-//         if (!user) {
-//             return res.status(404).json({ status: 'error', message: 'User not found.' });
-//         }
-
-//         user.password = hashedPassword;
-//         await user.save(); // Update password
-
-//         res.status(200).json({ status: 'success', message: 'Password reset successful. You can now log in.' });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ status: 'error', message: 'Invalid or expired token.' });
-//     }
-// };
-
-// // Change password
-// exports.changePassword = async (req, res) => {
-//     const { current_password, new_password, confirm_password } = req.body;
-//     const userId = req.user.id; // Assuming you have middleware to set req.user
-
-//     if (new_password !== confirm_password) {
-//         return res.status(400).json({ status: 'error', message: 'Passwords do not match.' });
-//     }
-
-//     try {
-//         const user = await User.findByPk(userId);
-
-//         if (!user || !(await bcrypt.compare(current_password, user.password))) {
-//             return res.status(401).json({ status: 'error', message: 'Invalid current password.' });
-//         }
-
-//         user.password = await bcrypt.hash(new_password, 10);
-//         await user.save(); // Update password
-
-//         res.status(200).json({ status: 'success', message: 'Password changed successfully.' });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ status: 'error', message: 'Server error.' });
-//     }
-// };
 
 // Request Password Reset (Send OTP)
 exports.requestPasswordReset = async (req, res) => {
     const { email } = req.body;
+    const trackerId = req.trackerId; // Assuming trackerId is passed along with the request
+    logWithTracker('info', `Requesting password reset for email: ${email}`, trackerId,'website-service');
 
     if (!email) {
-        console.log('No email provided in the request.');
-        return res.status(400).json({ status: 'error', message: 'Please provide an email address.' });
+        logWithTracker('warn', 'No email provided in the request.', trackerId,'website-service');
+        return res.status(400).json({ status: 'error', message: 'Please provide an email address.' , trackerId});
     }
 
     try {
         const user = await User.findOne({ where: { email } });
 
         if (!user) {
-            console.log(`No user found with email: ${email}`);
-            return res.status(404).json({ status: 'error', message: 'Email not found.' });
+            logWithTracker('warn', `No user found with email: ${email}`, trackerId,'website-service');
+            return res.status(404).json({ status: 'error', message: 'Email not found.', trackerId });
         }
 
         // Generate OTP and set expiry
         const otp = randomize('0', 6); // Generates a 6-digit numeric OTP
         const otpExpiry = moment().add(5, 'minutes').toDate();
 
-        console.log(`Generated OTP for ${email}  and  expires at ${otpExpiry}`);
+        logWithTracker('info', `Generated OTP for ${email} and expires at ${otpExpiry}`, trackerId,'website-service');
 
         // Save OTP and expiry in the database
         user.reset_otp = otp;
@@ -325,38 +276,40 @@ exports.requestPasswordReset = async (req, res) => {
 
         // Send OTP to user's email
         await sendOtpEmail(email, otp);
-        console.log(`OTP sent to email: ${email}`);
+        logWithTracker('info', `OTP sent to email: ${email}`, trackerId,'website-service');
 
-        res.status(200).json({ status: 'success', message: 'An OTP has been sent to your email.' });
+        res.status(200).json({ status: 'success', message: 'An OTP has been sent to your email.', trackerId });
     } catch (error) {
+        logWithTracker('error', `Error in requestPasswordReset for ${email}: ${error.message}`, trackerId,'website-service');
         console.error('Error in requestPasswordReset:', error);
-        res.status(500).json({ status: 'error', message: 'Server error.' });
+        res.status(500).json({ status: 'error', message: 'Server error.', trackerId });
     }
 };
 
 // Verify OTP
 exports.verifyResetOtp = async (req, res) => {
     const { email, otp } = req.body;
+    const trackerId = req.trackerId; // Assuming trackerId is passed along with the request
 
     if (!email || !otp) {
-        console.log('Missing email or OTP in the request.');
-        return res.status(400).json({ status: 'error', message: 'Email and OTP are required.' });
+        logWithTracker('warn', 'Missing email or OTP in the request.', trackerId,'website-service');
+        return res.status(400).json({ status: 'error', message: 'Email and OTP are required.' , trackerId});
     }
 
     try {
         const user = await User.findOne({ where: { email } });
 
         if (!user) {
-            console.log(`No user found with email: ${email}`);
-            return res.status(404).json({ status: 'error', message: 'User not found.' });
+            logWithTracker('warn', `No user found with email: ${email}`, trackerId,'website-service');
+            return res.status(404).json({ status: 'error', message: 'User not found.' , trackerId});
         }
 
-        console.log(`Verifying OTP for ${email}: Provided OTP and  Stored OTP `);
+        logWithTracker('info', `Verifying OTP for ${email}: Provided OTP and Stored OTP`, trackerId,'website-service');
 
         // Check if OTP is valid and not expired
         if (user.reset_otp !== otp || moment().isAfter(user.reset_otp_expiry)) {
-            console.log('Invalid or expired OTP.');
-            return res.status(400).json({ status: 'error', message: 'Invalid or expired OTP.' });
+            logWithTracker('warn', 'Invalid or expired OTP.', trackerId);
+            return res.status(400).json({ status: 'error', message: 'Invalid or expired OTP.', trackerId });
         }
 
         // Mark OTP as verified by clearing it
@@ -365,41 +318,42 @@ exports.verifyResetOtp = async (req, res) => {
         user.is_otp_verified = true; // Optional: Mark OTP as verified
         await user.save();
 
-        console.log(`OTP successfully verified for ${email}.`);
+        logWithTracker('info', `OTP successfully verified for ${email}.`, trackerId,'website-service');
 
-        res.status(200).json({ status: 'success', message: 'OTP verified successfully.' });
+        res.status(200).json({ status: 'success', message: 'OTP verified successfully.', trackerId });
     } catch (error) {
-        console.error('Error in verifyResetOtp:', error);
-        res.status(500).json({ status: 'error', message: 'Server error.' });
+        logWithTracker('error', `Error in verifyResetOtp for ${email}: ${error.message}`, trackerId,'website-service');
+        res.status(500).json({ status: 'error', message: 'Server error.', trackerId });
     }
 };
 
 // Reset Password
 exports.resetPassword = async (req, res) => {
     const { email, new_password, confirm_password } = req.body;
+    const trackerId = req.trackerId; // Assuming trackerId is passed along with the request
 
     if (!email || !new_password || !confirm_password) {
-        console.log('Missing email, new password, or confirm password in the request.');
-        return res.status(400).json({ status: 'error', message: 'All fields are required.' });
+        logWithTracker('warn', 'Missing email, new password, or confirm password in the request.', trackerId,'website-service');
+        return res.status(400).json({ status: 'error', message: 'All fields are required.', trackerId });
     }
 
     if (new_password !== confirm_password) {
-        console.log('New password and confirm password do not match.');
-        return res.status(400).json({ status: 'error', message: 'Passwords do not match.' });
+        logWithTracker('warn', 'New password and confirm password do not match.', trackerId,'website-service');
+        return res.status(400).json({ status: 'error', message: 'Passwords do not match.', trackerId });
     }
 
     try {
         const user = await User.findOne({ where: { email } });
 
         if (!user) {
-            console.log(`No user found with email: ${email}`);
-            return res.status(404).json({ status: 'error', message: 'User not found.' });
+            logWithTracker('warn', `No user found with email: ${email}`, trackerId,'website-service');
+            return res.status(404).json({ status: 'error', message: 'User not found.', trackerId });
         }
 
         // Ensure OTP verification has been completed
         if (!user.is_otp_verified) {
-            console.log('OTP verification not completed for this user.');
-            return res.status(400).json({ status: 'error', message: 'OTP verification is required before resetting the password.' });
+            logWithTracker('warn', 'OTP verification not completed for this user.', trackerId,'website-service');
+            return res.status(400).json({ status: 'error', message: 'OTP verification is required before resetting the password.', trackerId });
         }
 
         // Hash and update the new password
@@ -408,11 +362,11 @@ exports.resetPassword = async (req, res) => {
         user.is_otp_verified = false; // Reset OTP verification status
         await user.save();
 
-        console.log(`Password successfully reset for ${email}.`);
+        logWithTracker('info', `Password successfully reset for ${email}.`, trackerId,'website-service');
 
-        res.status(200).json({ status: 'success', message: 'Password reset successful. You can now log in.' });
+        res.status(200).json({ status: 'success', message: 'Password reset successful. You can now log in.', trackerId });
     } catch (error) {
-        console.error('Error in resetPassword:', error);
-        res.status(500).json({ status: 'error', message: 'Server error.' });
+        logWithTracker('error', `Error in resetPassword for ${email}: ${error.message}`, trackerId,'website-service');
+        res.status(500).json({ status: 'error', message: 'Server error.', trackerId });
     }
 };

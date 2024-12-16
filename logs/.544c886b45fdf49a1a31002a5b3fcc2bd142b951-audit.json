@@ -1,0 +1,30 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "logs\\.544c886b45fdf49a1a31002a5b3fcc2bd142b951-audit.json",
+    "files": [
+        {
+            "date": 1733292772439,
+            "name": "logs\\food-delivery-service-2024-12-04.log",
+            "hash": "3b51f9f2b92b1e49c6c538dd438979095cece31ba89ee15a1826916719d936d5"
+        },
+        {
+            "date": 1733376381983,
+            "name": "logs\\food-delivery-service-2024-12-05.log",
+            "hash": "fea7b602ff87361962b8353f64d94274d1919c2171a663ad9776923766335d82"
+        },
+        {
+            "date": 1733462896872,
+            "name": "logs\\food-delivery-service-2024-12-06.log",
+            "hash": "aea4acd5dabc1ebe388f49f744c547b74c53b9fffd785f227989220648c9748e"
+        },
+        {
+            "date": 1734067272747,
+            "name": "logs\\food-delivery-service-2024-12-13.log",
+            "hash": "336a41795aa8e48039ba121713b6a361080fe9b08550f15c1494ea850d919459"
+        }
+    ],
+    "hashType": "sha256"
+}

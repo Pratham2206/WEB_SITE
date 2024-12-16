@@ -1,8 +1,10 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
+const trackerMiddleware = require('./middlewares/trackerMiddleware');
 const cors = require('cors');
 const sequelize = require('./config/sequelize');
+const performanceMetrics = require('./middlewares/performanceMetrics');
 const Contact = require('./models/contact');
 const CareerApplication = require('./models/careerApplication');
 const User = require('./models/user');
@@ -18,6 +20,8 @@ const app = express();
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
+app.use(trackerMiddleware);
+app.use(performanceMetrics);
 
 // Import route modules
 const authRoutes = require('./routes/auth');
@@ -27,6 +31,7 @@ const dataOrders = require('./routes/orders');
 const adminRoutes = require('./routes/admin');
 const webauthRoutes = require('./routes/webauthRoutes');
 const webuserRoutes = require('./routes/webuserRoutes');
+
 
 // Client URLs based on environment
 const CLIENT_URL_LOCAL = process.env.CLIENT_URL_LOCAL;
@@ -80,7 +85,7 @@ const start = async () => {
     await Pricing.sync();
     console.log('Database synced successfully');
 
-    const PORT = process.env.PORT || 5000; // Default to 5000 if PORT not set
+    const PORT = process.env.PORT ; // Default to 5000 if PORT not set
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server is running on port ${PORT}`);
     });
@@ -97,3 +102,5 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
+
+

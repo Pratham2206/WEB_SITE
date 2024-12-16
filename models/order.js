@@ -1,100 +1,99 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 
-const Orders = sequelize.define('Orders', {
-  id: {
+const Orders = sequelize.define(
+  'Orders',
+  {
+    id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
-  },
-
-  phoneNumber: {
+    },
+    phoneNumber: {
       type: DataTypes.STRING(10),
       allowNull: false,
-  },
-  name: {
+    },
+    name: {
       type: DataTypes.STRING(40),
       allowNull: false,
-  },
-  email: {
+    },
+    email: {
       type: DataTypes.STRING(50),
       allowNull: false,
-  },
-  weight: {
+    },
+    weight: {
       type: DataTypes.DECIMAL,
       allowNull: false,
-  },
-  pickupAddress: {
+    },
+    pickupAddress: {
       type: DataTypes.STRING,
       allowNull: false,
-  },
-  dropAddress: {
+    },
+    dropAddress: {
       type: DataTypes.STRING,
       allowNull: false,
-  },
-senderAddress: {
-    type: DataTypes.STRING,
-    allowNull: false,
-},
-receiverAddress: {
-    type: DataTypes.STRING,
-    allowNull: false,
-},
-  content: {
+    },
+    senderAddress: {
       type: DataTypes.STRING,
-  },
-  deliveryInstructions: {
+      allowNull: false,
+    },
+    receiverAddress: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    content: {
+      type: DataTypes.STRING,
+    },
+    deliveryInstructions: {
       type: DataTypes.TEXT,
       allowNull: true, // Optional field
-  },
-  receiverPhonenumber: {
+    },
+    receiverPhonenumber: {
       type: DataTypes.STRING(10),
       allowNull: false,
-  },
-  receiverName: {
+    },
+    receiverName: {
       type: DataTypes.STRING(40),
       allowNull: false,
-  },
-  pickupDate: {
+    },
+    pickupDate: {
       type: DataTypes.DATE,
       allowNull: true, // Only for scheduled deliveries
-  },
-  pickupTime: {
+    },
+    pickupTime: {
       type: DataTypes.TIME,
       allowNull: true, // Only for scheduled deliveries
-  },
-  
-  // Added Razorpay-related fields for payment
-  razorpay_order_id: {
+    },
+    // Razorpay-related fields for payment
+    razorpay_order_id: {
       type: DataTypes.STRING,
       allowNull: true, // Will be filled after Razorpay order creation
-  },
-  razorpay_payment_id: {
+    },
+    razorpay_payment_id: {
       type: DataTypes.STRING,
       allowNull: true, // Will be filled after successful payment
-  },
-  razorpay_signature: {
+    },
+    razorpay_signature: {
       type: DataTypes.STRING,
       allowNull: true, // Used for payment verification
-  },
-  amount: {
+    },
+    amount: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false, // Total order amount
-  },
- 
-  status: {
+    },
+    status: {
       type: DataTypes.ENUM('pending', 'active', 'picked', 'delivered'),
       defaultValue: 'pending',
-  },
-  
-  createdAt: {
+    },
+    createdAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
+    },
   },
-}, 
-{
-  timestamps: false,
-  tableName: 'Orders',
-});
+  {
+    timestamps: false,
+    tableName: 'Orders',
+  }
+);
 
 module.exports = Orders;

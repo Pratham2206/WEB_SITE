@@ -6,34 +6,36 @@ const AssignedOrder = require('../models/assignedOrder');
 const {sendEmail, createEmailTemplate} = require('../services/emailConformations');
 const sequelize = require('../config/sequelize');
 const { Op } = require('sequelize');
+const { logWithTracker } = require('../services/loggerService');
 
 // Fetch unapproved users
 exports.getUnapprovedUsers = async (req, res) => {
+    const trackerId = req.trackerId;
     try {
-        console.log('Fetching unapproved users...');
         const unapprovedUsers = await Employee.findAll({ where: { isApproved: false } });
-        console.log('Unapproved users found:', unapprovedUsers);
-        res.json(unapprovedUsers);
+        logWithTracker('info', `Unapproved users found......`, trackerId,'pickup-drop-service');
+        res.json({unapprovedUsers,trackerId});
     } catch (err) {
-        console.error('Error fetching data:', err);
-        res.status(500).json({ error: 'Error fetching data' });
+        logWithTracker('error', `Error fetching data: ${err.message}`, trackerId,'pickup-drop-service');
+        res.status(500).json({ error: 'Error fetching data',trackerId });
     }
 };
 
 // Accept a user
 exports.acceptUser = async (req, res) => {
     const { id } = req.params;
+    const trackerId = req.trackerId;
     try {
-        console.log(`Accepting user with ID: ${id}`);
+        logWithTracker('info', `Accepting user with ID: ${id}`, trackerId,'pickup-drop-service');
         const employee = await Employee.findByPk(id);
         if (!employee) {
-            console.log(`User with ID ${id} not found`);
-            return res.status(404).json({ error: 'User not found' });
+            logWithTracker('warn', `User with ID ${id} not found`, trackerId,'pickup-drop-service');
+            return res.status(404).json({ error: 'User not found' , trackerId});
         }
-        console.log(`Found employee: ${employee.name}, Role: ${employee.role}`);
+        logWithTracker('info', `Found employee: ${employee.name}, Role: ${employee.role}`, trackerId,'pickup-drop-service');
         if (employee.role === 'delivery boy') {
             try {
-                console.log('Moving data to delivery_boys table...');
+                logWithTracker('info', 'Moving data to delivery_boys table...', trackerId,'pickup-drop-service');
                 await DeliveryBoy.create({
                     name: employee.name,
                     email: employee.email,
@@ -43,17 +45,17 @@ exports.acceptUser = async (req, res) => {
                     created_at: new Date(),
                     employee_id: employee.id,
                 });
-                console.log('Delivery boy data moved successfully');
+                logWithTracker('info', 'Delivery boy data moved successfully', trackerId,'pickup-drop-service');
             } catch (insertError) {
-                console.error('Error moving data to delivery_boys table:', insertError);
-                return res.status(500).json({ error: 'Failed to move data to delivery_boys table' });
+                logWithTracker('error', `Error moving data to delivery_boys table: ${insertError.message}`, trackerId,'pickup-drop-service');
+                return res.status(500).json({ error: 'Failed to move data to delivery_boys table', trackerId });
             }
         }
-        console.log(`Approving user with ID: ${id}`);
+        logWithTracker('info', `Approving user with ID: ${id}`, trackerId,'pickup-drop-service');
         employee.isApproved = true;
         await employee.save();
 
-        console.log('User approved successfully');
+        logWithTracker('info', 'User approved successfully', trackerId,'pickup-drop-service');
         res.status(200).json({ message: 'Request accepted' });
 
         // Send approval email
@@ -65,26 +67,27 @@ exports.acceptUser = async (req, res) => {
             Welcome to the TURTU family!<br><br>`
         );
         await sendEmail (employee.email, 'Your Account Has Been Approved', ApprovedMessage);
-        console.log(`Approval email sent to: ${employee.email}`);
+        logWithTracker('info', `Approval email sent to: ${employee.email}`, trackerId,'pickup-drop-service');
     } catch (err) {
-        console.error('Error updating request:', err);
-        res.status(500).json({ error: 'Error updating request' });
+        logWithTracker('error', `Error updating request for user with ID: ${id} - ${err.message}`, trackerId,'pickup-drop-service');
+        res.status(500).json({ error: 'Error updating request', trackerId });
     }
 };
 // Reject a user
 exports.rejectUser = async (req, res) => {
     const { id } = req.params;
+    const trackerId = req.trackerId;
     try {
-        console.log(`Rejecting user with ID: ${id}`);
+        logWithTracker('info', `Rejecting user with ID: ${id}`, trackerId,'pickup-drop-service');
         const user = await Employee.findByPk(id);
         if (!user) {
-            console.log(`User with ID ${id} not found`);
-            return res.status(404).json({ error: 'User not found' });
+            logWithTracker('warn', `User with ID ${id} not found`, trackerId,'pickup-drop-service');
+            return res.status(404).json({ error: 'User not found' , trackerId});
         }
-        console.log(`Found user: ${user.name}, Role: ${user.role}`);
+        logWithTracker('info', `Found user: ${user.name}, Role: ${user.role}`, trackerId,'pickup-drop-service');
         await Employee.destroy({ where: { id } });
-        console.log(`User with ID ${id} has been rejected and removed`);
-        res.status(200).json({ message: 'Request rejected' });
+        logWithTracker('info', `User with ID ${id} has been rejected and removed`, trackerId,'pickup-drop-service');
+        res.status(200).json({ message: 'Request rejected' , trackerId});
    
         const RejectMessage = createEmailTemplate(
             'Your Account Application Status',
@@ -95,33 +98,35 @@ exports.rejectUser = async (req, res) => {
             Thank you for choosing TURTU.`
         );
         await sendEmail(user.email, 'Your Account Application Status', RejectMessage);
-        console.log(`Rejection email sent to: ${user.email}`);
+        logWithTracker('info', `Rejection email sent to: ${user.email}`, trackerId,'pickup-drop-service');
     } catch (err) {
-        console.error('Error deleting request:', err);
-        res.status(500).json({ error: 'Error deleting request' });
+        logWithTracker('error', `Error deleting request for user with ID: ${id} - ${err.message}`, trackerId,'pickup-drop-service');
+        res.status(500).json({ error: 'Error deleting request', trackerId });
     }
 };
 
 // Fetch active or picked orders
 exports.getAdminOrders = async (req, res) => {
+    const trackerId = req.trackerId;
+    logWithTracker('info', 'Fetching assigned orders with status "active" or "picked"...', trackerId,'pickup-drop-service');
+
     try {
-        console.log('Fetching assigned orders with status "active" or "picked"...');
         const orders = await AssignedOrder.findAll({ where: { status: ['active', 'picked'] } });
-        console.log(`Found ${orders.length} orders with status "active" or "picked"`);
-        res.json(orders);
+        logWithTracker('info', `Found ${orders.length} orders with status "active" or "picked"`, trackerId,'pickup-drop-service');
+        res.json({orders, trackerId});
     } catch (err) {
-        console.error('Error fetching assigned orders:', err);
-        res.status(500).json({ error: 'Error fetching assigned orders' });
+        logWithTracker('error', `Error fetching assigned orders: ${err.message}`, trackerId,'pickup-drop-service');
+        res.status(500).json({ error: 'Error fetching assigned orders', trackerId });
     }
 };
 
+
 // Get bar data
 exports.getBarData = async (req, res) => {
+    const trackerId = req.trackerId;
     const view = req.query.view || 'weekly';
     let query;
-  
-    console.log(`Fetching bar data with view: ${view}`);
-
+    logWithTracker('info', `Fetching bar data with view: ${view}`, trackerId,'pickup-drop-service');
     if (view === 'monthly') {
         query = `
             SELECT DATE_FORMAT(createdAt, '%Y-%m') as date, COUNT(*) as count
@@ -130,7 +135,7 @@ exports.getBarData = async (req, res) => {
             GROUP BY DATE_FORMAT(createdAt, '%Y-%m')
             ORDER BY DATE_FORMAT(createdAt, '%Y-%m') DESC;
         `;
-        console.log('Query for monthly view:', query);
+        logWithTracker('info', `Query for monthly view: ${query}`, trackerId,'pickup-drop-service');
     } else if (view === 'yearly') {
         query = `
             SELECT YEAR(createdAt) as date, COUNT(*) as count
@@ -139,7 +144,7 @@ exports.getBarData = async (req, res) => {
             GROUP BY YEAR(createdAt)
             ORDER BY YEAR(createdAt) DESC;
         `;
-        console.log('Query for yearly view:', query);
+        logWithTracker('info', `Query for yearly view: ${query}`, trackerId,'pickup-drop-service');
     } else {
         query = `
           SELECT DATE(createdAt) as date, COUNT(*) as count
@@ -148,92 +153,103 @@ exports.getBarData = async (req, res) => {
           GROUP BY DATE(createdAt)
           ORDER BY DATE(createdAt) DESC;
         `;
-        console.log('Query for weekly view:', query);
+        logWithTracker('info', `Query for weekly view: ${query}`, trackerId,'pickup-drop-service');
     }
     try {
         const [results] = await sequelize.query(query);
-        console.log('Fetched results:', results);
-        res.json(results);
+        logWithTracker('info', `Fetched results: ${JSON.stringify(results)}`, trackerId,'pickup-drop-service');
+        res.json({results, trackerId});
     } catch (err) {
-        console.error(err); 
-        res.status(500).json({ error: 'An error occurred while fetching data' });
+        logWithTracker('error', `Error fetching bar data: ${err.message}`, trackerId,'pickup-drop-service');
+        res.status(500).json({ error: 'An error occurred while fetching data', trackerId });
     }
 };
 
 // Order history with counts
 exports.getOrderHistory = async (req, res) => {
+    const trackerId = req.trackerId;
     try {
-        console.log('Fetching order count with status active, picked, pending, delivered...');
+        logWithTracker('info', 'Fetching order count with status active, picked, pending, delivered...', trackerId,'pickup-drop-service');
         const orderCount = await Order.count({ where: { status: ['active', 'picked', 'pending', 'delivered'] } });
-        console.log('Fetching assigned orders with status delivered...');  
+        
+        logWithTracker('info', 'Fetching assigned orders with status delivered...', trackerId,'pickup-drop-service');
         const orders = await AssignedOrder.findAll({ where: { status: 'delivered' } });
-        res.json({ orderCount, orders });
+        
+        logWithTracker('info', `Fetched order count: ${orderCount}, Fetched orders: ${orders.length}`, trackerId,'pickup-drop-service');
+        res.json({ orderCount, orders , trackerId});
     } catch (err) {
-        console.error('Error fetching assigned orders:', err);
-        res.status(500).json({ error: 'Error fetching assigned orders' });
+        logWithTracker('error', `Error fetching assigned orders: ${err.message}`, trackerId,'pickup-drop-service');
+        res.status(500).json({ error: 'Error fetching assigned orders', trackerId });
     }
 };
 
-// Fetch a specific order
+// Fetch a specific order by ID
 exports.getOrderById = async (req, res) => {
+    const trackerId = req.trackerId;
     const { orderId } = req.params;
     try {
-        console.log(`Fetching order with ID: ${orderId}`);
+        logWithTracker('info', `Fetching order with ID: ${orderId}`, trackerId,'pickup-drop-service');
         const order = await AssignedOrder.findOne({ where: { order_id: orderId } });
+        
         if (!order) {
-            console.log(`Order with ID: ${orderId} not found`);
-            return res.status(404).json({ message: 'Order not found' });
+            logWithTracker('info', `Order with ID: ${orderId} not found`, trackerId,'pickup-drop-service');
+            return res.status(404).json({ message: 'Order not found', trackerId });
         }
-        console.log(`Order with ID: ${orderId} found`);
-        res.json(order);
+
+        logWithTracker('info', `Order with ID: ${orderId} found`, trackerId,'pickup-drop-service');
+        res.json({order,trackerId});
     } catch (error) {
-        console.error('Error fetching assigned orders:', error);
-        res.status(500).json({ message: 'Error fetching assigned orders' });
+        logWithTracker('error', `Error fetching assigned orders: ${error.message}`, trackerId,'pickup-drop-service');
+        res.status(500).json({ message: 'Error fetching assigned orders', trackerId });
     }
 };
 
 // Filter orders by date
 exports.filterOrdersByDate = async (req, res) => {
+    const trackerId = req.trackerId;
     const { startDate, endDate } = req.query;
     const filter = {};
   
     try {
-        console.log(`Filtering orders between ${startDate} and ${endDate}`);
+        logWithTracker('info', `Filtering orders between ${startDate} and ${endDate}`, trackerId,'pickup-drop-service');
         const start = new Date(startDate);
         const end = new Date(endDate);
   
         if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-            console.log('Invalid date format');
-            return res.status(400).json({ error: 'Invalid date format' });
+            logWithTracker('warn', 'Invalid date format', trackerId,'pickup-drop-service');
+            return res.status(400).json({ error: 'Invalid date format', trackerId });
         }
   
         if (start > end) {
-            console.log('End date must be greater than start date');
-            return res.status(400).json({ error: 'End date must be greater than start date' });
+            logWithTracker('warn', 'End date must be greater than start date', trackerId,'pickup-drop-service');
+            return res.status(400).json({ error: 'End date must be greater than start date', trackerId });
         }
   
         filter.createdAt = { [Op.between]: [start, end] };
   
         const orders = await AssignedOrder.findAll({ where: filter });
-        res.json(orders);
+        logWithTracker('info', `Fetched ${orders.length} filtered orders`, trackerId,'pickup-drop-service');
+        res.json({orders,trackerId});
     } catch (err) {
-        console.error('Error fetching filtered orders:', err);
-        res.status(500).json({ error: 'Error fetching filtered orders' });
+        logWithTracker('error', `Error fetching filtered orders: ${err.message}`, trackerId,'pickup-drop-service');
+        res.status(500).json({ error: 'Error fetching filtered orders', trackerId });
     }
 };
 
+
 // Fetch registered users
 exports.getRegisteredUsers = async (req, res) => {
+    const trackerId = req.trackerId;
     try {
-        console.log('Fetching registered users...');
+        logWithTracker('info', 'Fetching registered users...', trackerId,'pickup-drop-service');
         const userCount = await Employee.count();
-        console.log(`User count fetched: ${userCount}`);
+        logWithTracker('info', `User count fetched: ${userCount}`, trackerId,'pickup-drop-service');
 
         const users = await Employee.findAll();
-        console.log(`Found ${users.length} registered users`);
-        res.json({ userCount, users });
+        logWithTracker('info', `Found ${users.length} registered users`, trackerId,'pickup-drop-service');
+        res.json({ userCount, users ,trackerId});
     } catch (err) {
-        console.error('Error fetching users:', err);
-        res.status(500).json({ error: 'Error fetching users' });
+        logWithTracker('error', `Error fetching users: ${err.message}`, trackerId,'pickup-drop-service');
+        res.status(500).json({ error: 'Error fetching users', trackerId });
     }
 };

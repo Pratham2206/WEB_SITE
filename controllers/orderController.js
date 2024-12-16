@@ -1,17 +1,20 @@
 const Order = require('../models/order');
 const Customer = require('../models/customer');
-const Razorpay = require("razorpay");
-const crypto = require('crypto');
 require('dotenv').config();
+const Razorpay = require('razorpay');
+const RazorpayGateway = require('../geteways/razorpayGateway'); // Razorpay-specific logic
+const PaymentService = require('../services/paymentService');  // Abstraction layer
 const {sendEmail, createEmailTemplate} = require('../services/emailConformations');
+const { logWithTracker } = require('../services/loggerService');
 
-
-
-// Initialize Razorpay instance
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID , // Replace with your actual key_id
-    key_secret: process.env.RAZORPAY_KEY_SECRET , // Replace with your actual key_secret
+const razorpayInstance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
+
+// Initialize PaymentService with RazorpayGateway
+const paymentService = new PaymentService(new RazorpayGateway(razorpayInstance));
+
 
 // Function to handle order submission
 const submitOrder = async (req, res) => {
@@ -33,10 +36,14 @@ const submitOrder = async (req, res) => {
         pickupTime,
         amount // Extract amount here
     } = req.body;
+    const trackerId = req.trackerId; // Assuming trackerId is passed along with the request
 
     try {
+        logWithTracker('info', `Received order submission request for serviceType: ${serviceType}, email: ${email}`, trackerId,'pickup-drop-service');
+
         let customer = await Customer.findOne({ where: { email } });
         if (!customer) {
+            logWithTracker('info', `Creating new customer with email: ${email}`, trackerId,'pickup-drop-service');
             customer = await Customer.create({
                 name,
                 phoneNumber,
@@ -50,100 +57,75 @@ const submitOrder = async (req, res) => {
                 senderAddress,
                 receiverAddress,
             });
+            logWithTracker('info', `New customer created with email: ${email}`, trackerId,'pickup-drop-service');
         }
+        const orderData = {
+            phoneNumber,
+            name,
+            email,
+            weight,
+            pickupAddress,
+            dropAddress,
+            content,
+            deliveryInstructions,
+            receiverPhonenumber,
+            senderAddress,
+            receiverAddress,
+            receiverName,
+            amount,
+            status: 'pending',
+        };
         if (serviceType === "Delivery Now") {
-            await Order.create({
-                phoneNumber,
-                name,
-                email,
-                weight,
-                pickupAddress,
-                dropAddress,
-                content,
-                deliveryInstructions,
-                receiverPhonenumber,
-                senderAddress,
-                receiverAddress,
-                receiverName,
-                amount, // Extract amount here
-                status: 'pending',
-            });
-            res.status(200).send('Immediate delivery order created successfully');
+            logWithTracker('info', `Creating "Delivery Now" order for ${name}`, trackerId,'pickup-drop-service');
+            await Order.create(orderData);
+            res.status(200).send('Immediate delivery order created successfully', trackerId);
         } else if (serviceType === "Schedule for Later") {
             if (!pickupDate || !pickupTime) {
-                return res.status(400).send('Pickup date and time are required for scheduled deliveries');
+                logWithTracker('warn', `Pickup date or time missing for scheduled delivery`, trackerId,'pickup-drop-service');
+                return res.status(400).send('Pickup date and time are required for scheduled deliveries', trackerId,'pickup-drop-service');
             }
-
-            await Order.create({
-                customerId: customer.id,
-                phoneNumber,
-                name,
-                email,
-                weight,
-                pickupAddress,
-                dropAddress,
-                content,
-                deliveryInstructions,
-                receiverPhonenumber,
-                receiverName,
-                senderAddress,
-                receiverAddress,
-                pickupDate,
-                pickupTime,
-                amount,// Extract amount here
-                status: 'pending',
-            });
-            res.status(200).send('Scheduled delivery order created successfully');
+            orderData.pickupDate = pickupDate;
+            orderData.pickupTime = pickupTime;
+            logWithTracker('info', `Creating "Schedule for Later" order for ${name}`, trackerId,'pickup-drop-service');
+            await Order.create(orderData);
+            res.status(200).send('Scheduled delivery order created successfully', trackerId,'pickup-drop-service');
         } else {
-            res.status(400).send('Invalid service type');
+            logWithTracker('warn', `Invalid service type: ${serviceType}`, trackerId,'pickup-drop-service');
+            res.status(400).send('Invalid service type', trackerId);
         }
     } catch (err) {
-        console.error('Error processing order:', err);
-        res.status(500).send('Error creating the order');
+        logWithTracker('error', `Error processing order: ${err.message}`, trackerId,'pickup-drop-service');
+        res.status(500).send('Error creating the order', trackerId);
     }
 };
 
-
-// Razorpay order creation function
-const createRazorpayOrder = async (req, res) => {
+// Create Razorpay Order
+const createOrderHandler = async (req, res) => {
+    const { amount, currency, receipt } = req.body;
+    const trackerId = req.trackerId; // Assuming trackerId is passed along with the request
     try {
-        // Log the request body to inspect incoming data
-        console.log('Request received to create Razorpay order with data....');
+        logWithTracker('info', `Received request to create Razorpay order with amount, currency`, trackerId,'pickup-drop-service');
 
-        const { amount, currency, receipt } = req.body;
-
-        // Check if amount and currency are provided
         if (!amount || !currency) {
-            console.error('Amount or currency is missing in request body');
-            return res.status(400).json({ error: 'Amount and currency are required' });
+            logWithTracker('warn', `Amount or currency missing in request`, trackerId,'pickup-drop-service');
+            return res.status(400).json({ error: 'Amount and currency are required', trackerId });
         }
-
-        // Prepare Razorpay order options
         const options = {
-            amount: Math.round(amount), // Ensure it's an integer
+            amount: Math.round(amount),
             currency: currency,
-            receipt: receipt || `receipt#${Date.now()}`, // Default receipt if not provided
+            receipt: receipt || `receipt#${Date.now()}`,
         };
-        // Create the Razorpay order
-        const razorpayOrder = await razorpay.orders.create(options);
-        // Log the successful response from Razorpay
-        console.log('Razorpay order created successfully.....');
-        // Respond with the Razorpay order details
-        res.json(razorpayOrder);
+        const order = await paymentService.createOrder(options);
+        logWithTracker('info', `Razorpay order created successfully with receipt`, trackerId,'pickup-drop-service');
+        res.json({order, trackerId});
     } catch (error) {
-        // Log any errors that occur during the Razorpay order creation
-        console.error(
-            'Error creating Razorpay order:',
-            error.response ? error.response.data : error.message
-        );
-        // Return error response to the client
-        res.status(500).json({ 
-            error: 'Internal Server Error',
-            message: error.message, // Include more detailed error message for debugging
-        });
+        logWithTracker('error', `Error creating Razorpay order: ${error.message}`, trackerId,'pickup-drop-service');
+        res.status(500).json({ error: 'Failed to create order', message: error.message, trackerId });
     }
 };
-// Function to handle user order submission
+
+
+// Handle User Order Submission
 const userSubmitOrder = async (req, res) => {
     const {
         serviceType,
@@ -166,21 +148,23 @@ const userSubmitOrder = async (req, res) => {
         razorpay_signature,
         amount,
     } = req.body;
-    console.log('Received Order Request'); // Log request body
-    try {
-        // Verify Razorpay payment
-        const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
-        shasum.update(`${razorpay_order_id}|${razorpay_payment_id}`);
-        const digest = shasum.digest('hex');
 
-        if (digest !== razorpay_signature) {
-            console.error('Razorpay signature verification failed');
-            return res.status(400).json({ status: 'failed', message: 'Invalid Razorpay signature' });
+    const trackerId = req.trackerId;
+    logWithTracker('info', `Received user order submission for service type: ${serviceType}`, trackerId,'pickup-drop-service');
+    try {
+        const isVerified = paymentService.verifySignature({
+            order_id: razorpay_order_id,
+            payment_id: razorpay_payment_id,
+            signature: razorpay_signature,
+        });
+        if (!isVerified) {
+            logWithTracker('warn', 'Payment verification failed', trackerId,'pickup-drop-service');
+            return res.status(400).json({ status: 'failed', message: 'Invalid payment signature', trackerId });
         }
-        console.log('Razorpay payment verified successfully');
+        logWithTracker('info', 'Payment verified successfully', trackerId,'pickup-drop-service');
         let customer = await Customer.findOne({ where: { email } });
         if (!customer) {
-            console.log('Customer not found, creating a new one');
+            logWithTracker('info', `Customer not found, creating new customer for email: ${email}`, trackerId,'pickup-drop-service');
             customer = await Customer.create({
                 name,
                 phoneNumber,
@@ -194,12 +178,10 @@ const userSubmitOrder = async (req, res) => {
                 senderAddress,
                 receiverAddress,
             });
-            console.log('New Customer Created');
-        } else {
-            console.log('Customer Found');
+            logWithTracker('info', 'New customer created', trackerId,'pickup-drop-service');
         }
+
         const amountInRupees = (amount / 100).toFixed(2);
-        console.log('Amount in Rupees');
         const orderData = {
             phoneNumber,
             name,
@@ -219,77 +201,72 @@ const userSubmitOrder = async (req, res) => {
             amount: amountInRupees,
             status: 'pending',
         };
-
-        console.log('Order Data Prepared');
-
+        logWithTracker('info', 'Order data prepared for submission', trackerId,'pickup-drop-service');
         let order;
         if (serviceType === "Delivery Now") {
             order = await Order.create(orderData);
-            console.log('Order Created for "Delivery Now"');
-             // Fetch the created order to verify it's stored correctly
+            logWithTracker('info', 'Order created for "Delivery Now"', trackerId,'pickup-drop-service');
         } else if (serviceType === "Schedule for Later") {
             if (!pickupDate || !pickupTime) {
-                console.error('Pickup date and time are missing for scheduled delivery');
-                return res.status(400).json({ error: 'Pickup date and time are required for scheduled deliveries' });
+                logWithTracker('warn', 'Pickup date or time missing for scheduled delivery', trackerId,'pickup-drop-service');
+                return res.status(400).json({ error: 'Pickup date and time are required for scheduled deliveries', trackerId });
             }
             orderData.pickupDate = pickupDate;
             orderData.pickupTime = pickupTime;
             order = await Order.create(orderData);
-            console.log('Order Created for "Schedule for Later"');
+            logWithTracker('info', 'Order created for "Schedule for Later"', trackerId,'pickup-drop-service');
         } else {
-            console.error('Invalid service type:', serviceType);
-            return res.status(400).json({ error: 'Invalid service type' });
+            logWithTracker('warn', `Invalid service type: ${serviceType}`, trackerId,'pickup-drop-service');
+            return res.status(400).json({ error: 'Invalid service type', trackerId });
         }
-
         const orderId = order.id;
-        console.log('Order ID:', orderId);
-
-        // Send notification to the customer
+        logWithTracker('info', `Order ID: ${orderId}`, trackerId,'pickup-drop-service');
         const customerMessage = createEmailTemplate(
             'Order Confirmation',
             `Dear ${name},<br><br>
-                Thank you for placing your order. Here are the details:<br>
-                - Order ID: ${orderId}<br>
-                - Service Type: ${serviceType}<br>
-                - Pickup Address: ${pickupAddress}<br>
-                - Drop Address: ${dropAddress}<br>
-                - Weight: ${weight} kg<br>
-                - Amount: Online Payment ₹${amountInRupees}<br><br>
-                We will keep you updated on the status of your delivery.<br><br>
-                Thank you for choosing TURTU.`
+            Thank you for placing your order. Here are the details:<br>
+            - Order ID: ${orderId}<br>
+            - Service Type: ${serviceType}<br>
+            - Pickup Address: ${pickupAddress}<br>
+            - Drop Address: ${dropAddress}<br>
+            - Weight: ${weight} kg<br>
+            - Amount: ₹${amountInRupees}<br><br>
+            We will keep you updated on the status of your delivery.<br><br>
+            Thank you for choosing TURTU.`
         );
-
         try {
             await sendEmail(email, 'Order Confirmation', customerMessage);
-            console.log('Order confirmation email sent successfully to', email);
+            logWithTracker('info', `Order confirmation email sent successfully to ${email}`, trackerId,'pickup-drop-service');
         } catch (error) {
-            console.error('Error sending order confirmation email:', error);
+            logWithTracker('error', `Error sending confirmation email: ${error.message}`, trackerId,'pickup-drop-service');
         }
-
         return res.status(200).json({ message: 'Order created successfully' });
-    } catch (err) {
-        console.error('Error processing order:', err.message, err.stack);
-        return res.status(500).json({ error: 'Internal Server Error', message: err.message });
+    } catch (error) {
+        logWithTracker('error', `Error processing user order: ${error.message}`, trackerId,'pickup-drop-service');
+        return res.status(500).json({ error: 'Internal Server Error', message: error.message, trackerId });
     }
 };
 
-
 // Function to get all customer data
 const getUserData = async (req, res) => {
-    console.log('Fetching user data');
+    const trackerId = req.trackerId; // Assuming trackerId is passed along with the request
     try {
+        logWithTracker('info', 'Fetching user data', trackerId,'pickup-drop-service');
+        // Fetch all users (customers)
         const users = await Customer.findAll();
-        console.log('Fetched user data');
-        res.json(users);
+        logWithTracker('info', 'Fetched user data successfully', trackerId,'pickup-drop-service');
+        // Return the user data
+        res.json({users, trackerId});
     } catch (err) {
-        console.error('Error fetching data:', err);
-        res.status(500).json({ error: 'Error fetching data' });
+        logWithTracker('error', `Error fetching data: ${err.message}`, trackerId,'pickup-drop-service');
+        res.status(500).json({ error: 'Error fetching data', trackerId });
     }
 };
 
 module.exports = {
     submitOrder,
-    createRazorpayOrder,
+    createOrderHandler,
     userSubmitOrder,
     getUserData,
+    
 };

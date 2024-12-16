@@ -1,0 +1,44 @@
+[2024-12-13 11:28:00] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Running log cleanup...
+[2024-12-13 11:29:00] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Running log cleanup...
+[2024-12-13 11:29:00] [website-service] [Tracker: deleteOldLogs] [Level: INFO]: Old logs older than 10 days deleted successfully from the database.
+[2024-12-13 11:29:00] [website-service] [Tracker: ReferenceError: fs is not defined] [Level: ERROR]: Error deleting old log files:
+[2024-12-13 11:30:00] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Running log cleanup...
+[2024-12-13 11:30:01] [website-service] [Tracker: deleteOldLogs] [Level: INFO]: Old logs older than 10 days deleted successfully from the database.
+[2024-12-13 11:30:01] [website-service] [Tracker: ReferenceError: fs is not defined] [Level: ERROR]: Error deleting old log files:
+[2024-12-13 11:31:00] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Running log cleanup...
+[2024-12-13 11:31:01] [website-service] [Tracker: deleteOldLogs] [Level: INFO]: Old logs older than 10 days deleted successfully from the database.
+[2024-12-13 11:31:01] [website-service] [Tracker: ReferenceError: fs is not defined] [Level: ERROR]: Error deleting old log files:
+[2024-12-13 11:32:00] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Running log cleanup...
+[2024-12-13 11:32:01] [website-service] [Tracker: deleteOldLogs] [Level: INFO]: Old logs older than 10 days deleted successfully from the database.
+[2024-12-13 11:32:01] [website-service] [Tracker: ReferenceError: fs is not defined] [Level: ERROR]: Error deleting old log files:
+[2024-12-13 11:33:00] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Running log cleanup...
+[2024-12-13 11:33:00] [website-service] [Tracker: deleteOldLogs] [Level: INFO]: Old logs older than 10 days deleted successfully from the database.
+[2024-12-13 11:33:00] [website-service] [Tracker: ReferenceError: fs is not defined] [Level: ERROR]: Error deleting old log files:
+[2024-12-13 11:34:00] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Running log cleanup...
+[2024-12-13 11:34:00] [website-service] [Tracker: deleteOldLogs] [Level: INFO]: Old logs older than 10 days deleted successfully from the database.
+[2024-12-13 11:34:00] [website-service] [Tracker: ReferenceError: fs is not defined] [Level: ERROR]: Error deleting old log files:
+[2024-12-13 11:36:00] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Running log cleanup...
+[2024-12-13 11:36:03] [website-service] [Tracker: deleteOldLogs] [Level: INFO]: Old logs older than 10 days deleted successfully from the database.
+[2024-12-13 11:37:00] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Running log cleanup...
+[2024-12-13 11:37:02] [website-service] [Tracker: deleteOldLogs] [Level: INFO]: Old logs older than 10 days deleted successfully from the database.
+[2024-12-13 11:41:00] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Running log cleanup...
+[2024-12-13 11:41:01] [website-service] [Tracker: deleteOldLogs] [Level: INFO]: No logs older than 10 days found to delete.
+[2024-12-13 11:49:00] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Running log cleanup...
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogs] [Level: INFO]: Old logs older than 1 days deleted successfully from the database.
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Deleted old log file: .09e639a801b4433f31be42ad8459e300c6641b36-audit.json
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Deleted old log file: .2f011a3cec00834cc3e28cc312154ee9547a3c32-audit.json
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Deleted old log file: .d28e85b1b00262423e8d1038b48ba0c116a69f1b-audit.json
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Deleted old log file: food-delivery-service-2024-12-04.log
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Deleted old log file: .c670860f68cd0b77ea0418dd943d8fd3b04f4a5a-audit.json
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Deleted old log file: food-delivery-service-2024-12-05.log
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Deleted old log file: cake-delivery-service-2024-12-05.log
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Deleted old log file: cake-delivery-service-2024-12-04.log
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Deleted old log file: cake-delivery-service-2024-12-06.log
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Deleted old log file: pickup-drop-service-2024-12-05.log
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Deleted old log file: food-delivery-service-2024-12-06.log
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Deleted old log file: pickup-drop-service-2024-12-04.log
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Deleted old log file: performance_metrics.json
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Deleted old log file: pickup-drop-service-2024-12-06.log
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Deleted old log file: website-service-2024-12-05.log
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Deleted old log file: website-service-2024-12-04.log
+[2024-12-13 11:49:02] [website-service] [Tracker: deleteOldLogFiles] [Level: INFO]: Deleted old log file: website-service-2024-12-06.log
