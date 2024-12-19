@@ -1,0 +1,274 @@
+[
+  {
+    "trackerId": "52241009-909d-4e78-8802-0a1809ba6c52",
+    "endpoint": "/api/user/web/career-applications/14/resume",
+    "method": "GET",
+    "status": 302,
+    "responseTime": "140.00 ms",
+    "timestamp": "2024-12-16T10:04:04.093Z"
+  },
+  {
+    "trackerId": "4258d4aa-b713-424a-a6bf-a646f884f319",
+    "endpoint": "/api/user/web/career-applications/14",
+    "method": "GET",
+    "status": 404,
+    "responseTime": "1.36 ms",
+    "timestamp": "2024-12-16T10:04:12.127Z"
+  },
+  {
+    "trackerId": "732aa6ef-bab5-48e2-aa27-53ad44f2572d",
+    "endpoint": "/api/user/web/career-applications/15/undefined",
+    "method": "GET",
+    "status": 404,
+    "responseTime": "1.64 ms",
+    "timestamp": "2024-12-16T10:04:55.044Z"
+  },
+  {
+    "trackerId": "ed1aa107-de83-409d-8ebb-f09f867d1749",
+    "endpoint": "/api/auth/web/login",
+    "method": "POST",
+    "status": 200,
+    "responseTime": "1010.06 ms",
+    "timestamp": "2024-12-17T05:39:30.938Z"
+  },
+  {
+    "trackerId": "1895ff86-f7b8-4184-a05f-6ad3335bfb1e",
+    "endpoint": "/api/user/web/career",
+    "method": "POST",
+    "status": 201,
+    "responseTime": "3927.43 ms",
+    "timestamp": "2024-12-17T05:40:10.078Z"
+  },
+  {
+    "trackerId": "f04c7ee5-e1ec-4fcb-8bd4-b8943f7f01d4",
+    "endpoint": "/api/user/web/career-applications",
+    "method": "GET",
+    "status": 200,
+    "responseTime": "348.15 ms",
+    "timestamp": "2024-12-17T05:40:15.973Z"
+  },
+  {
+    "trackerId": "c95f263c-1485-40c1-b038-e5cc4bcd5e47",
+    "endpoint": "/api/user/web/career-applications/25/resume",
+    "method": "GET",
+    "status": 404,
+    "responseTime": "1413.08 ms",
+    "timestamp": "2024-12-17T05:40:49.120Z"
+  },
+  {
+    "trackerId": "de24d7e3-a0d0-4f80-994c-ecb041f0bdb2",
+    "endpoint": "/api/auth/web/login",
+    "method": "POST",
+    "status": 200,
+    "responseTime": "200.21 ms",
+    "timestamp": "2024-12-17T06:04:53.179Z"
+  },
+  {
+    "trackerId": "262ba767-29cb-4bc4-b464-a81549230830",
+    "endpoint": "/api/user/web/career",
+    "method": "POST",
+    "status": 500,
+    "responseTime": "445.18 ms",
+    "timestamp": "2024-12-17T06:05:17.484Z"
+  },
+  {
+    "trackerId": "745e34cc-b096-4e05-a8da-49bb7563d048",
+    "endpoint": "/api/user/web/career",
+    "method": "POST",
+    "status": 500,
+    "responseTime": "401.96 ms",
+    "timestamp": "2024-12-17T06:07:17.353Z"
+  },
+  {
+    "trackerId": "a3b1d0eb-1d4b-43cd-af92-1559203ea85b",
+    "endpoint": "/api/user/web/career",
+    "method": "POST",
+    "status": 500,
+    "responseTime": "434.68 ms",
+    "timestamp": "2024-12-17T06:14:33.494Z"
+  },
+  {
+    "trackerId": "8dedc194-bc67-4291-aee4-be9d44a5127b",
+    "endpoint": "/api/user/web/career",
+    "method": "POST",
+    "status": 201,
+    "responseTime": "3185.51 ms",
+    "timestamp": "2024-12-17T06:20:14.279Z"
+  },
+  {
+    "trackerId": "97d52491-a880-46b5-923b-686f77011c68",
+    "endpoint": "/api/user/web/career-applications",
+    "method": "GET",
+    "status": 500,
+    "responseTime": "172.54 ms",
+    "timestamp": "2024-12-17T06:20:23.091Z"
+  },
+  {
+    "trackerId": "f728eb34-687c-40e7-aa23-c72910de78aa",
+    "endpoint": "/api/user/web/career-applications",
+    "method": "GET",
+    "status": 500,
+    "responseTime": "555.34 ms",
+    "timestamp": "2024-12-17T09:56:00.233Z"
+  },
+  {
+    "trackerId": "be8271ae-13ea-4424-a706-6d4ed781e281",
+    "endpoint": "/api/user/web/career-applications",
+    "method": "GET",
+    "status": 200,
+    "responseTime": "368.54 ms",
+    "timestamp": "2024-12-17T09:58:14.200Z"
+  },
+  {
+    "trackerId": "aae79161-1800-4699-b4b6-d9c5146b7569",
+    "endpoint": "/api/user/web/career-applications",
+    "method": "GET",
+    "status": 200,
+    "responseTime": "462.57 ms",
+    "timestamp": "2024-12-17T10:02:13.003Z"
+  },
+  {
+    "trackerId": "b5a23196-6226-4af0-bf2f-9ab9982ab1d4",
+    "endpoint": "/api/user/web/career-applications",
+    "method": "GET",
+    "status": 200,
+    "responseTime": "315.73 ms",
+    "timestamp": "2024-12-17T10:02:18.723Z"
+  },
+  {
+    "trackerId": "187cbfdf-d3f0-459a-8ace-2304f05eb593",
+    "endpoint": "/api/user/web/career-applications",
+    "method": "GET",
+    "status": 200,
+    "responseTime": "778.71 ms",
+    "timestamp": "2024-12-17T10:03:09.744Z"
+  },
+  {
+    "trackerId": "198af89b-e6a9-4b6c-91b8-8143da77ddce",
+    "endpoint": "/api/user/web/career-applications",
+    "method": "GET",
+    "status": 200,
+    "responseTime": "361.03 ms",
+    "timestamp": "2024-12-17T11:26:47.330Z"
+  },
+  {
+    "trackerId": "b8d5afd0-7d41-42f5-8ed1-70f8a295afb6",
+    "endpoint": "/api/auth/web/login",
+    "method": "POST",
+    "status": 401,
+    "responseTime": "1081.91 ms",
+    "timestamp": "2024-12-19T05:43:00.874Z"
+  },
+  {
+    "trackerId": "cb493b59-3b7e-405c-92ae-d329d108c5fe",
+    "endpoint": "/api/auth/web/login",
+    "method": "POST",
+    "status": 200,
+    "responseTime": "3016.46 ms",
+    "timestamp": "2024-12-19T05:43:56.699Z"
+  },
+  {
+    "trackerId": "debe8267-6431-4850-abdf-5becd5bd0d36",
+    "endpoint": "/api/user/web/career",
+    "method": "POST",
+    "status": 201,
+    "responseTime": "4907.14 ms",
+    "timestamp": "2024-12-19T05:44:25.552Z"
+  },
+  {
+    "trackerId": "ba3c0167-a7aa-45fa-84fe-acd371342c73",
+    "endpoint": "/api/user/web/career-applications",
+    "method": "GET",
+    "status": 200,
+    "responseTime": "355.34 ms",
+    "timestamp": "2024-12-19T05:44:34.232Z"
+  },
+  {
+    "trackerId": "8aa9a244-c335-4e20-9181-6ecdad5cb04a",
+    "endpoint": "/api/user/web/career-applications",
+    "method": "GET",
+    "status": 200,
+    "responseTime": "474.70 ms",
+    "timestamp": "2024-12-19T05:48:40.495Z"
+  },
+  {
+    "trackerId": "1fa73668-ea82-46ca-ab9a-7ee67fafb67b",
+    "endpoint": "/api/user/web/career",
+    "method": "POST",
+    "status": 500,
+    "responseTime": "1977.14 ms",
+    "timestamp": "2024-12-19T06:02:34.930Z"
+  },
+  {
+    "trackerId": "f1730d47-ffdf-4f21-b766-30979459ecb6",
+    "endpoint": "/api/auth/web/login",
+    "method": "POST",
+    "status": 200,
+    "responseTime": "300.94 ms",
+    "timestamp": "2024-12-19T06:02:43.485Z"
+  },
+  {
+    "trackerId": "812155f8-3c1b-4872-8879-f5e0873b0308",
+    "endpoint": "/api/user/web/career",
+    "method": "POST",
+    "status": 500,
+    "responseTime": "324.99 ms",
+    "timestamp": "2024-12-19T06:02:58.878Z"
+  },
+  {
+    "trackerId": "0acdc77c-789b-443f-a792-0eb1a693dd98",
+    "endpoint": "/api/user/web/career",
+    "method": "POST",
+    "status": 500,
+    "responseTime": "1019.44 ms",
+    "timestamp": "2024-12-19T06:15:25.395Z"
+  },
+  {
+    "trackerId": "4537e789-dbca-42f8-a55b-033b1cdc5111",
+    "endpoint": "/api/user/web/career",
+    "method": "POST",
+    "status": 201,
+    "responseTime": "3982.37 ms",
+    "timestamp": "2024-12-19T06:17:42.634Z"
+  },
+  {
+    "trackerId": "d88fc293-d6b5-454d-8769-324ac13dbdc0",
+    "endpoint": "/api/user/web/career-applications",
+    "method": "GET",
+    "status": 200,
+    "responseTime": "2115.51 ms",
+    "timestamp": "2024-12-19T06:18:00.825Z"
+  },
+  {
+    "trackerId": "a776c570-8ad9-4cd5-8918-e3feb4000895",
+    "endpoint": "/api/user/web/career-applications/27/resume",
+    "method": "GET",
+    "status": 500,
+    "responseTime": "1948.69 ms",
+    "timestamp": "2024-12-19T06:18:44.040Z"
+  },
+  {
+    "trackerId": "717f43ad-0898-4958-b053-4934a2734347",
+    "endpoint": "/api/user/web/career-applications/27/resume",
+    "method": "GET",
+    "status": 500,
+    "responseTime": "1115.71 ms",
+    "timestamp": "2024-12-19T06:21:00.842Z"
+  },
+  {
+    "trackerId": "3d4cf69f-5ad6-4363-9c3e-227d9862fdfc",
+    "endpoint": "/api/user/web/career-applications/27/resume",
+    "method": "GET",
+    "status": 500,
+    "responseTime": "831.62 ms",
+    "timestamp": "2024-12-19T06:28:17.579Z"
+  },
+  {
+    "trackerId": "df037513-3d92-422a-a388-5eaa368c3299",
+    "endpoint": "/api/user/web/career-applications/27/resume",
+    "method": "GET",
+    "status": 200,
+    "responseTime": "1164.97 ms",
+    "timestamp": "2024-12-19T06:29:51.210Z"
+  }
+]

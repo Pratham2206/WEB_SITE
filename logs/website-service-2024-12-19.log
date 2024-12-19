@@ -1,0 +1,49 @@
+[2024-12-19 11:12:59] [website-service] [Tracker: b8d5afd0-7d41-42f5-8ed1-70f8a295afb6] [Level: INFO]: Attempting login for email: prathameshkinayekar499@gmail.com
+[2024-12-19 11:13:00] [website-service] [Tracker: b8d5afd0-7d41-42f5-8ed1-70f8a295afb6] [Level: WARN]: Invalid email or password for prathameshkinayekar499@gmail.com
+[2024-12-19 11:13:53] [website-service] [Tracker: cb493b59-3b7e-405c-92ae-d329d108c5fe] [Level: INFO]: Attempting login for email: prathameshkinayekar499@gmail.com
+[2024-12-19 11:13:56] [website-service] [Tracker: cb493b59-3b7e-405c-92ae-d329d108c5fe] [Level: INFO]: Login successful for prathameshkinayekar499@gmail.com. Token generated.
+[2024-12-19 11:14:20] [website-service] [Tracker: debe8267-6431-4850-abdf-5becd5bd0d36] [Level: INFO]: Received form data for career application
+[2024-12-19 11:14:22] [website-service] [Tracker: debe8267-6431-4850-abdf-5becd5bd0d36] [Level: INFO]: Resume uploaded to S3: https://backendapp-bucket.s3.ap-south-1.amazonaws.com/66-1734587060688-8th%20sem%20_compressed.pdf
+[2024-12-19 11:14:22] [website-service] [Tracker: debe8267-6431-4850-abdf-5becd5bd0d36] [Level: INFO]: Encrypted S3 URL: c75ff8544b0612294145aa9b167abf68:517b189cb9a718d623e695d10cbb11f3f241964d7d00efe50ed74bfa30246014ad78bbc96e6ca7a31ead31e18f8823ff0e2c5b8e6b11a720e81d857ff0a1bddeb592d08798dd7f5cc8168d3ad7ce8f3a74102e17904a8dd6c2ad03b90e5ede7d26aac410a16ecf5c9ffc4595bfd4581b
+[2024-12-19 11:14:22] [website-service] [Tracker: debe8267-6431-4850-abdf-5becd5bd0d36] [Level: INFO]: Inserting application data: {"user_id":66,"email":"snehaekbote13@gmail.com","phone_number":"1234567890","profile":"Devops","resume_url":"c75ff8544b0612294145aa9b167abf68:517b189cb9a718d623e695d10cbb11f3f241964d7d00efe50ed74bfa30246014ad78bbc96e6ca7a31ead31e18f8823ff0e2c5b8e6b11a720e81d857ff0a1bddeb592d08798dd7f5cc8168d3ad7ce8f3a74102e17904a8dd6c2ad03b90e5ede7d26aac410a16ecf5c9ffc4595bfd4581b","resume_filename":"8th sem _compressed.pdf","resume_data":"c75ff8544b0612294145aa9b167abf68:517b189cb9a718d623e695d10cbb11f3f241964d7d00efe50ed74bfa30246014ad78bbc96e6ca7a31ead31e18f8823ff0e2c5b8e6b11a720e81d857ff0a1bddeb592d08798dd7f5cc8168d3ad7ce8f3a74102e17904a8dd6c2ad03b90e5ede7d26aac410a16ecf5c9ffc4595bfd4581b"}
+[2024-12-19 11:14:22] [website-service] [Tracker: debe8267-6431-4850-abdf-5becd5bd0d36] [Level: INFO]: Application saved to database
+[2024-12-19 11:14:25] [website-service] [Tracker: debe8267-6431-4850-abdf-5becd5bd0d36] [Level: INFO]: Career application email sent to: snehaekbote13@gmail.com
+[2024-12-19 11:14:33] [website-service] [Tracker: ba3c0167-a7aa-45fa-84fe-acd371342c73] [Level: INFO]: Fetching all career applications
+[2024-12-19 11:14:34] [website-service] [Tracker: ba3c0167-a7aa-45fa-84fe-acd371342c73] [Level: WARN]: Resume URL missing for application ID: 26
+[2024-12-19 11:14:34] [website-service] [Tracker: ba3c0167-a7aa-45fa-84fe-acd371342c73] [Level: INFO]: Fetched all valid career applications
+[2024-12-19 11:18:40] [website-service] [Tracker: 8aa9a244-c335-4e20-9181-6ecdad5cb04a] [Level: INFO]: Fetching all career applications
+[2024-12-19 11:18:40] [website-service] [Tracker: 8aa9a244-c335-4e20-9181-6ecdad5cb04a] [Level: ERROR]: Error decrypting resume URL for application ID: 26 - text.split is not a function or its return value is not iterable
+[2024-12-19 11:18:40] [website-service] [Tracker: 8aa9a244-c335-4e20-9181-6ecdad5cb04a] [Level: INFO]: Fetched all valid career applications
+[2024-12-19 11:32:32] [website-service] [Tracker: 1fa73668-ea82-46ca-ab9a-7ee67fafb67b] [Level: INFO]: Received form data for career application
+[2024-12-19 11:32:34] [website-service] [Tracker: 1fa73668-ea82-46ca-ab9a-7ee67fafb67b] [Level: INFO]: Resume uploaded to S3: https://backendapp-bucket.s3.ap-south-1.amazonaws.com/66-1734588152976-8th%20sem%20_compressed.pdf
+[2024-12-19 11:32:34] [website-service] [Tracker: 1fa73668-ea82-46ca-ab9a-7ee67fafb67b] [Level: INFO]: Encrypted S3 URL: 1d4b43cb7ca22b3dd853e9cb220ff2b9:dd19c30f9074b8f2f79590f012e2cc76af9a13fce287385233fb408e1b2b1f2ba63824ec9ea138e1edfb84463f9c29ba544a52c9bffe4ee8e3ac9f61930413b61c2fc5501f00a2235ad070463378c10f8607aa140841ba199e3e4f120fe0759463d7610d3bfd828ddf69af6c624b7a24
+[2024-12-19 11:32:34] [website-service] [Tracker: 1fa73668-ea82-46ca-ab9a-7ee67fafb67b] [Level: ERROR]: Error occurred: resumeUrl is not defined
+[2024-12-19 11:32:43] [website-service] [Tracker: f1730d47-ffdf-4f21-b766-30979459ecb6] [Level: INFO]: Attempting login for email: prathameshkinayekar499@gmail.com
+[2024-12-19 11:32:43] [website-service] [Tracker: f1730d47-ffdf-4f21-b766-30979459ecb6] [Level: INFO]: Login successful for prathameshkinayekar499@gmail.com. Token generated.
+[2024-12-19 11:32:58] [website-service] [Tracker: 812155f8-3c1b-4872-8879-f5e0873b0308] [Level: INFO]: Received form data for career application
+[2024-12-19 11:32:58] [website-service] [Tracker: 812155f8-3c1b-4872-8879-f5e0873b0308] [Level: INFO]: Resume uploaded to S3: https://backendapp-bucket.s3.ap-south-1.amazonaws.com/66-1734588178560-8th%20sem%20_compressed.pdf
+[2024-12-19 11:32:58] [website-service] [Tracker: 812155f8-3c1b-4872-8879-f5e0873b0308] [Level: INFO]: Encrypted S3 URL: 4d8faea13aaffe097d1f30720d275846:73156db907a695407e1867dddac0429261cb8c36be6cc8475e9d36b7af97334c076e579bcfef609becf5965c5f1df102f91c19b811c8a7cf55bd68dc6eeabb48826afe13e69a87a61672a7eae417cc1de50cbab185524892476e9c74d427b32dbe3ca6105673be32ee6ceddf1f05bde6
+[2024-12-19 11:32:58] [website-service] [Tracker: 812155f8-3c1b-4872-8879-f5e0873b0308] [Level: ERROR]: Error occurred: resumeUrl is not defined
+[2024-12-19 11:45:24] [website-service] [Tracker: 0acdc77c-789b-443f-a792-0eb1a693dd98] [Level: INFO]: Validating form data
+[2024-12-19 11:45:25] [website-service] [Tracker: 0acdc77c-789b-443f-a792-0eb1a693dd98] [Level: INFO]: Encrypted S3 URL generated
+[2024-12-19 11:45:25] [website-service] [Tracker: 0acdc77c-789b-443f-a792-0eb1a693dd98] [Level: ERROR]: Error occurred: Field 'resume_data' doesn't have a default value
+[2024-12-19 11:47:38] [website-service] [Tracker: 4537e789-dbca-42f8-a55b-033b1cdc5111] [Level: INFO]: Validating form data
+[2024-12-19 11:47:39] [website-service] [Tracker: 4537e789-dbca-42f8-a55b-033b1cdc5111] [Level: INFO]: Encrypted S3 URL generated
+[2024-12-19 11:47:39] [website-service] [Tracker: 4537e789-dbca-42f8-a55b-033b1cdc5111] [Level: INFO]: Application data saved to database
+[2024-12-19 11:47:58] [website-service] [Tracker: d88fc293-d6b5-454d-8769-324ac13dbdc0] [Level: INFO]: Fetching all career applications
+[2024-12-19 11:48:00] [website-service] [Tracker: d88fc293-d6b5-454d-8769-324ac13dbdc0] [Level: INFO]: Fetched all valid career applications
+[2024-12-19 11:48:42] [website-service] [Tracker: a776c570-8ad9-4cd5-8918-e3feb4000895] [Level: INFO]: Fetching resume for application ID: 27
+[2024-12-19 11:48:43] [website-service] [Tracker: a776c570-8ad9-4cd5-8918-e3feb4000895] [Level: INFO]: Decrypted S3 URL: https://backendapp-bucket.s3.ap-south-1.amazonaws.com/66-1734589058799-8th%20sem%20_compressed.pdf
+[2024-12-19 11:48:43] [website-service] [Tracker: a776c570-8ad9-4cd5-8918-e3feb4000895] [Level: INFO]: Fetching resume from S3: backendapp-bucket/66-1734589058799-8th%20sem%20_compressed.pdf
+[2024-12-19 11:48:44] [website-service] [Tracker: a776c570-8ad9-4cd5-8918-e3feb4000895] [Level: ERROR]: Error fetching file from S3: The specified key does not exist.
+[2024-12-19 11:50:59] [website-service] [Tracker: 717f43ad-0898-4958-b053-4934a2734347] [Level: INFO]: Fetching resume for application ID: 27
+[2024-12-19 11:51:00] [website-service] [Tracker: 717f43ad-0898-4958-b053-4934a2734347] [Level: INFO]: Decrypted S3 URL: https://backendapp-bucket.s3.ap-south-1.amazonaws.com/66-1734589058799-8th%20sem%20_compressed.pdf
+[2024-12-19 11:51:00] [website-service] [Tracker: 717f43ad-0898-4958-b053-4934a2734347] [Level: INFO]: Fetching resume from S3: backendapp-bucket/66-1734589058799-8th%20sem%20_compressed.pdf
+[2024-12-19 11:51:00] [website-service] [Tracker: 717f43ad-0898-4958-b053-4934a2734347] [Level: ERROR]: Error fetching file from S3: The specified key does not exist.
+[2024-12-19 11:58:16] [website-service] [Tracker: 3d4cf69f-5ad6-4363-9c3e-227d9862fdfc] [Level: INFO]: Fetching resume for application ID: 27
+[2024-12-19 11:58:17] [website-service] [Tracker: 3d4cf69f-5ad6-4363-9c3e-227d9862fdfc] [Level: INFO]: Decrypted S3 URL: https://backendapp-bucket.s3.ap-south-1.amazonaws.com/66-1734589058799-8th%20sem%20_compressed.pdf
+[2024-12-19 11:58:17] [website-service] [Tracker: 3d4cf69f-5ad6-4363-9c3e-227d9862fdfc] [Level: INFO]: Fetching resume from S3: backendapp-bucket/66-1734589058799-8th%20sem%20_compressed.pdf
+[2024-12-19 11:58:17] [website-service] [Tracker: 3d4cf69f-5ad6-4363-9c3e-227d9862fdfc] [Level: ERROR]: Error fetching file from S3: The specified key does not exist.
+[2024-12-19 11:59:50] [website-service] [Tracker: df037513-3d92-422a-a388-5eaa368c3299] [Level: INFO]: Fetching resume for application ID: 27
+[2024-12-19 11:59:50] [website-service] [Tracker: df037513-3d92-422a-a388-5eaa368c3299] [Level: INFO]: Decoded Decrypted S3 URL: https://backendapp-bucket.s3.ap-south-1.amazonaws.com/66-1734589058799-8th sem _compressed.pdf
+[2024-12-19 11:59:50] [website-service] [Tracker: df037513-3d92-422a-a388-5eaa368c3299] [Level: INFO]: Fetching resume from S3: backendapp-bucket/66-1734589058799-8th sem _compressed.pdf

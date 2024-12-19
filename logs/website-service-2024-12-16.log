@@ -1,0 +1,48 @@
+[2024-12-16 15:03:08] [website-service] [Tracker: 9e42fd01-0195-4afc-b5af-126ecca45530] [Level: INFO]: Attempting login for email: prathameshkinayekar499@gmail.com
+[2024-12-16 15:03:09] [website-service] [Tracker: 9e42fd01-0195-4afc-b5af-126ecca45530] [Level: INFO]: Login successful for prathameshkinayekar499@gmail.com. Token generated.
+[2024-12-16 15:03:29] [website-service] [Tracker: 6fc11993-f97e-4ea5-870b-c9d881da7c0b] [Level: INFO]: Received form data for career application
+[2024-12-16 15:03:29] [website-service] [Tracker: 6fc11993-f97e-4ea5-870b-c9d881da7c0b] [Level: INFO]: User ID from token: 66
+[2024-12-16 15:03:31] [website-service] [Tracker: 6fc11993-f97e-4ea5-870b-c9d881da7c0b] [Level: ERROR]: Error occurred while submitting career application: Inaccessible host: `backendapp-bucket.s3.asia' at port `undefined'. This service may not be available in the `Asia Pacific (Mumbai) ap-south-1' region.
+[2024-12-16 15:06:06] [website-service] [Tracker: 1f219068-673d-4a85-8fe6-1700649727a8] [Level: INFO]: Received form data for career application
+[2024-12-16 15:06:06] [website-service] [Tracker: 1f219068-673d-4a85-8fe6-1700649727a8] [Level: INFO]: User ID from token: 66
+[2024-12-16 15:06:07] [website-service] [Tracker: 1f219068-673d-4a85-8fe6-1700649727a8] [Level: ERROR]: Error occurred while submitting career application: The bucket does not allow ACLs
+[2024-12-16 15:07:54] [website-service] [Tracker: a1c3152a-bff4-42e1-a16a-57be026e8771] [Level: INFO]: Received form data for career application
+[2024-12-16 15:07:54] [website-service] [Tracker: a1c3152a-bff4-42e1-a16a-57be026e8771] [Level: INFO]: User ID from token: 66
+[2024-12-16 15:07:54] [website-service] [Tracker: a1c3152a-bff4-42e1-a16a-57be026e8771] [Level: INFO]: Resume uploaded to S3: https://backendapp-bucket.s3.ap-south-1.amazonaws.com/66-1734341874033-8th%20sem%20_compressed.pdf
+[2024-12-16 15:07:54] [website-service] [Tracker: a1c3152a-bff4-42e1-a16a-57be026e8771] [Level: ERROR]: Error occurred while submitting career application: notNull Violation: CareerApplication.resume_data cannot be null,
+notNull Violation: CareerApplication.resume_filename cannot be null
+[2024-12-16 15:16:48] [website-service] [Tracker: d41d9752-771b-4beb-ad5a-bcd7672c2829] [Level: INFO]: Received form data for career application
+[2024-12-16 15:16:48] [website-service] [Tracker: d41d9752-771b-4beb-ad5a-bcd7672c2829] [Level: INFO]: User ID from token: 66
+[2024-12-16 15:16:48] [website-service] [Tracker: d41d9752-771b-4beb-ad5a-bcd7672c2829] [Level: ERROR]: Error occurred while submitting career application: The bucket does not allow ACLs
+[2024-12-16 15:17:19] [website-service] [Tracker: 436d72dc-248f-492d-989d-6c7874922069] [Level: INFO]: Received form data for career application
+[2024-12-16 15:17:19] [website-service] [Tracker: 436d72dc-248f-492d-989d-6c7874922069] [Level: INFO]: User ID from token: 66
+[2024-12-16 15:17:20] [website-service] [Tracker: 436d72dc-248f-492d-989d-6c7874922069] [Level: INFO]: Resume uploaded to S3: https://backendapp-bucket.s3.ap-south-1.amazonaws.com/66-1734342439940-8th%20sem%20_compressed.pdf
+[2024-12-16 15:17:20] [website-service] [Tracker: 436d72dc-248f-492d-989d-6c7874922069] [Level: INFO]: Application saved to database
+[2024-12-16 15:17:23] [website-service] [Tracker: 436d72dc-248f-492d-989d-6c7874922069] [Level: INFO]: Career application email sent to: snehaekbote13@gmail.com
+[2024-12-16 15:18:41] [website-service] [Tracker: a06abdbc-1685-4f94-8da3-037b23698680] [Level: INFO]: Received form data for career application
+[2024-12-16 15:18:41] [website-service] [Tracker: a06abdbc-1685-4f94-8da3-037b23698680] [Level: INFO]: User ID from token: 66
+[2024-12-16 15:18:42] [website-service] [Tracker: a06abdbc-1685-4f94-8da3-037b23698680] [Level: INFO]: Resume uploaded to S3: https://backendapp-bucket.s3.ap-south-1.amazonaws.com/66-1734342521990-All%20%20Models.docx
+[2024-12-16 15:18:42] [website-service] [Tracker: a06abdbc-1685-4f94-8da3-037b23698680] [Level: INFO]: Application saved to database
+[2024-12-16 15:18:45] [website-service] [Tracker: a06abdbc-1685-4f94-8da3-037b23698680] [Level: INFO]: Career application email sent to: snehaekbote13@gmail.com
+[2024-12-16 15:25:50] [website-service] [Tracker: 0463f5a6-ec60-480f-812a-6df2a09ae764] [Level: INFO]: Fetching all career applications
+[2024-12-16 15:25:50] [website-service] [Tracker: 0463f5a6-ec60-480f-812a-6df2a09ae764] [Level: INFO]: Fetched all career applications
+[2024-12-16 15:27:29] [website-service] [Tracker: c0f1a71f-8623-41be-9eb1-5d75a4733e1b] [Level: INFO]: Attempting to download resume for application ID: 22
+[2024-12-16 15:27:29] [website-service] [Tracker: c0f1a71f-8623-41be-9eb1-5d75a4733e1b] [Level: INFO]: Preparing to download resume from URL: undefined
+[2024-12-16 15:27:41] [website-service] [Tracker: e6394fe8-c1c4-4a21-a8fb-361d635d5669] [Level: INFO]: Attempting to download resume for application ID: 1
+[2024-12-16 15:27:41] [website-service] [Tracker: e6394fe8-c1c4-4a21-a8fb-361d635d5669] [Level: WARN]: Application with ID 1 not found
+[2024-12-16 15:27:56] [website-service] [Tracker: 9a4a9a3d-b402-4885-b5c6-b1d1aaa23216] [Level: INFO]: Attempting to download resume for application ID: 23
+[2024-12-16 15:27:56] [website-service] [Tracker: 9a4a9a3d-b402-4885-b5c6-b1d1aaa23216] [Level: INFO]: Preparing to download resume from URL: undefined
+[2024-12-16 15:28:08] [website-service] [Tracker: 9bb324dd-127f-420b-8e01-967e807c3959] [Level: INFO]: Attempting to download resume for application ID: 22
+[2024-12-16 15:28:08] [website-service] [Tracker: 9bb324dd-127f-420b-8e01-967e807c3959] [Level: INFO]: Preparing to download resume from URL: undefined
+[2024-12-16 15:28:17] [website-service] [Tracker: fd0cb3e9-2f72-4f06-862d-559cc0867d40] [Level: INFO]: Attempting to download resume for application ID: 15
+[2024-12-16 15:28:18] [website-service] [Tracker: fd0cb3e9-2f72-4f06-862d-559cc0867d40] [Level: INFO]: Preparing to download resume from URL: undefined
+[2024-12-16 15:28:28] [website-service] [Tracker: 50b253be-80bc-4ec5-83e2-c42359100b45] [Level: INFO]: Attempting to download resume for application ID: 10
+[2024-12-16 15:28:28] [website-service] [Tracker: 50b253be-80bc-4ec5-83e2-c42359100b45] [Level: WARN]: Application with ID 10 not found
+[2024-12-16 15:30:00] [website-service] [Tracker: b4b0f988-e689-4fd9-ac45-3c17e13a2c56] [Level: INFO]: Attempting to download resume for application ID: 10
+[2024-12-16 15:30:00] [website-service] [Tracker: b4b0f988-e689-4fd9-ac45-3c17e13a2c56] [Level: WARN]: Application with ID 10 not found
+[2024-12-16 15:30:15] [website-service] [Tracker: a1f81fea-677b-4b65-85b0-2cfc2a76fa6f] [Level: INFO]: Attempting to download resume for application ID: 23
+[2024-12-16 15:30:15] [website-service] [Tracker: a1f81fea-677b-4b65-85b0-2cfc2a76fa6f] [Level: INFO]: Preparing to download resume from URL: undefined
+[2024-12-16 15:34:03] [website-service] [Tracker: 52241009-909d-4e78-8802-0a1809ba6c52] [Level: INFO]: Attempting to download resume for application ID: 14
+[2024-12-16 15:34:04] [website-service] [Tracker: 52241009-909d-4e78-8802-0a1809ba6c52] [Level: INFO]: Preparing to download resume from URL: undefined
+[2024-12-16 15:34:54] [website-service] [Tracker: 50e203e9-a0a4-448b-911d-9ca4834917a2] [Level: INFO]: Attempting to download resume for application ID: 15
+[2024-12-16 15:34:55] [website-service] [Tracker: 50e203e9-a0a4-448b-911d-9ca4834917a2] [Level: INFO]: Preparing to download resume from URL: undefined

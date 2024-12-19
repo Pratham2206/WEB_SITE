@@ -20,8 +20,8 @@ const CareerApplication = sequelize.define('CareerApplication', {
         type: DataTypes.STRING(20),
         allowNull: false,
     },
-    resume_data: {
-        type: DataTypes.BLOB('long'),
+    resume_url: { // Updated field
+        type: DataTypes.TEXT, // Store the encrypted URL as text
         allowNull: false,
     },
     resume_filename: {
@@ -30,17 +30,17 @@ const CareerApplication = sequelize.define('CareerApplication', {
     },
     user_id: {
         type: DataTypes.INTEGER,
-        allowNull: false, // Ensure this field cannot be null
+        allowNull: false,
     },
     createdAt: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
     },
-}, 
-{
-    tableName: 'CareerApplication', // Specify the table name in the database
-    timestamps: false, // Disable automatic timestamps since we are managing the createdAt field
+}, {
+    tableName: 'CareerApplication',
+    timestamps: false,
 });
+
 
 // Export the model
 module.exports = CareerApplication;

@@ -6,16 +6,6 @@
     "auditLog": "logs\\.0673cd9d0c58009ec83a6f29a201b29aedc8a3ad-audit.json",
     "files": [
         {
-            "date": 1733292772441,
-            "name": "logs\\cake-delivery-service-2024-12-04.log",
-            "hash": "a16d3b5caab3d0c8ed765a66fcb1df906bda82be0c09700315730b2913a77b94"
-        },
-        {
-            "date": 1733376381988,
-            "name": "logs\\cake-delivery-service-2024-12-05.log",
-            "hash": "0382b1676cacefa18a9a1ad4588438f675422fc00c0f9dcb3c385edf455bc47e"
-        },
-        {
             "date": 1733462896874,
             "name": "logs\\cake-delivery-service-2024-12-06.log",
             "hash": "98c9a1a074187d81db4a788d6cf0584c701d948e145fa30070e8ae8e23f3b879"
@@ -24,6 +14,21 @@
             "date": 1734067272795,
             "name": "logs\\cake-delivery-service-2024-12-13.log",
             "hash": "c3d304a31b246cba079a1d78ad3769c038332250afca5cf3fac35e48a966ec85"
+        },
+        {
+            "date": 1734341528779,
+            "name": "logs\\cake-delivery-service-2024-12-16.log",
+            "hash": "f78bcb95321d06728de6417dbcc2cc2e215f0f8edd737d7fce6df4f4ace33572"
+        },
+        {
+            "date": 1734413924703,
+            "name": "logs\\cake-delivery-service-2024-12-17.log",
+            "hash": "c86632d873a5a75ebfd043381e9ccb62e54af22970c46ff399e5919c750bf30e"
+        },
+        {
+            "date": 1734586909942,
+            "name": "logs\\cake-delivery-service-2024-12-19.log",
+            "hash": "7c84a09fc770d7ec9eddaa49cbfe67b64a4ae19912950631ac8e2d5d905b8444"
         }
     ],
     "hashType": "sha256"

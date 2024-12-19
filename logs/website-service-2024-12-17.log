@@ -1,0 +1,55 @@
+[2024-12-17 11:09:29] [website-service] [Tracker: ed1aa107-de83-409d-8ebb-f09f867d1749] [Level: INFO]: Attempting login for email: prathameshkinayekar499@gmail.com
+[2024-12-17 11:09:30] [website-service] [Tracker: ed1aa107-de83-409d-8ebb-f09f867d1749] [Level: INFO]: Login successful for prathameshkinayekar499@gmail.com. Token generated.
+[2024-12-17 11:10:06] [website-service] [Tracker: 1895ff86-f7b8-4184-a05f-6ad3335bfb1e] [Level: INFO]: Received form data for career application
+[2024-12-17 11:10:06] [website-service] [Tracker: 1895ff86-f7b8-4184-a05f-6ad3335bfb1e] [Level: INFO]: User ID from token: 66
+[2024-12-17 11:10:06] [website-service] [Tracker: 1895ff86-f7b8-4184-a05f-6ad3335bfb1e] [Level: INFO]: Resume uploaded to S3: https://backendapp-bucket.s3.ap-south-1.amazonaws.com/66-1734414006195-8th%20sem%20_compressed.pdf
+[2024-12-17 11:10:07] [website-service] [Tracker: 1895ff86-f7b8-4184-a05f-6ad3335bfb1e] [Level: INFO]: Application saved to database
+[2024-12-17 11:10:10] [website-service] [Tracker: 1895ff86-f7b8-4184-a05f-6ad3335bfb1e] [Level: INFO]: Career application email sent to: snehaekbote13@gmail.com
+[2024-12-17 11:10:15] [website-service] [Tracker: f04c7ee5-e1ec-4fcb-8bd4-b8943f7f01d4] [Level: INFO]: Fetching all career applications
+[2024-12-17 11:10:15] [website-service] [Tracker: f04c7ee5-e1ec-4fcb-8bd4-b8943f7f01d4] [Level: INFO]: Fetched all career applications
+[2024-12-17 11:10:47] [website-service] [Tracker: c95f263c-1485-40c1-b038-e5cc4bcd5e47] [Level: INFO]: Attempting to download resume for application ID: 25
+[2024-12-17 11:10:49] [website-service] [Tracker: c95f263c-1485-40c1-b038-e5cc4bcd5e47] [Level: WARN]: Application with ID 25 not found
+[2024-12-17 11:34:52] [website-service] [Tracker: de24d7e3-a0d0-4f80-994c-ecb041f0bdb2] [Level: INFO]: Attempting login for email: prathameshkinayekar499@gmail.com
+[2024-12-17 11:34:53] [website-service] [Tracker: de24d7e3-a0d0-4f80-994c-ecb041f0bdb2] [Level: INFO]: Login successful for prathameshkinayekar499@gmail.com. Token generated.
+[2024-12-17 11:35:17] [website-service] [Tracker: 262ba767-29cb-4bc4-b464-a81549230830] [Level: INFO]: Received form data for career application
+[2024-12-17 11:35:17] [website-service] [Tracker: 262ba767-29cb-4bc4-b464-a81549230830] [Level: INFO]: Resume uploaded to S3: https://backendapp-bucket.s3.ap-south-1.amazonaws.com/66-1734415517057-8th%20sem%20_compressed.pdf
+[2024-12-17 11:35:17] [website-service] [Tracker: 262ba767-29cb-4bc4-b464-a81549230830] [Level: ERROR]: Error occurred: Invalid key length
+[2024-12-17 11:37:16] [website-service] [Tracker: 745e34cc-b096-4e05-a8da-49bb7563d048] [Level: INFO]: Received form data for career application
+[2024-12-17 11:37:17] [website-service] [Tracker: 745e34cc-b096-4e05-a8da-49bb7563d048] [Level: INFO]: Resume uploaded to S3: https://backendapp-bucket.s3.ap-south-1.amazonaws.com/66-1734415636965-8th%20sem%20_compressed.pdf
+[2024-12-17 11:37:17] [website-service] [Tracker: 745e34cc-b096-4e05-a8da-49bb7563d048] [Level: INFO]: S3 URL encrypted successfully
+[2024-12-17 11:37:17] [website-service] [Tracker: 745e34cc-b096-4e05-a8da-49bb7563d048] [Level: ERROR]: Error occurred: notNull Violation: CareerApplication.resume_data cannot be null
+[2024-12-17 11:44:33] [website-service] [Tracker: a3b1d0eb-1d4b-43cd-af92-1559203ea85b] [Level: INFO]: Received form data for career application
+[2024-12-17 11:44:33] [website-service] [Tracker: a3b1d0eb-1d4b-43cd-af92-1559203ea85b] [Level: INFO]: Resume uploaded to S3: https://backendapp-bucket.s3.ap-south-1.amazonaws.com/66-1734416073077-8th%20sem%20_compressed.pdf
+[2024-12-17 11:44:33] [website-service] [Tracker: a3b1d0eb-1d4b-43cd-af92-1559203ea85b] [Level: INFO]: Encrypted S3 URL: 85c335e814cecd350b9f322b2a336a74:b7d139fe2ce1fb3482076274c5b0fea8821a489a2b7091dba37ddb58b69ecbf3aebe28c5c9a45c87aac0a25c292294b517649462b417abf776144837eb06edb7e9c8e0abbcf5ff29d9d8e058d63c721fd043feadb6587d7c155d40c09ce1ceb71c926825f223ab67ff83a183bb0039e1
+[2024-12-17 11:44:33] [website-service] [Tracker: a3b1d0eb-1d4b-43cd-af92-1559203ea85b] [Level: INFO]: Inserting application data: {"user_id":66,"email":"snehaekbote13@gmail.com","phone_number":"1234567890","profile":"Devops","resume_url":"85c335e814cecd350b9f322b2a336a74:b7d139fe2ce1fb3482076274c5b0fea8821a489a2b7091dba37ddb58b69ecbf3aebe28c5c9a45c87aac0a25c292294b517649462b417abf776144837eb06edb7e9c8e0abbcf5ff29d9d8e058d63c721fd043feadb6587d7c155d40c09ce1ceb71c926825f223ab67ff83a183bb0039e1","resume_filename":"8th sem _compressed.pdf"}
+[2024-12-17 11:44:33] [website-service] [Tracker: a3b1d0eb-1d4b-43cd-af92-1559203ea85b] [Level: ERROR]: Error occurred: notNull Violation: CareerApplication.resume_data cannot be null
+[2024-12-17 11:50:11] [website-service] [Tracker: 8dedc194-bc67-4291-aee4-be9d44a5127b] [Level: INFO]: Received form data for career application
+[2024-12-17 11:50:11] [website-service] [Tracker: 8dedc194-bc67-4291-aee4-be9d44a5127b] [Level: INFO]: Resume uploaded to S3: https://backendapp-bucket.s3.ap-south-1.amazonaws.com/66-1734416411107-8th%20sem%20_compressed.pdf
+[2024-12-17 11:50:11] [website-service] [Tracker: 8dedc194-bc67-4291-aee4-be9d44a5127b] [Level: INFO]: Encrypted S3 URL: fd080111d10f49f7841eeca18f042951:37f7f3859d14ea81d9b56fd5016472ba5597a28f33af169e11659042e3e859d5f0ac1f048187474c18152b8272dcbb4d4117785f19b1e58e7b5220c3603cbf8096b004b751c20010aaef9a5134b8e516162762d689b66233f12e7adaf87a91e44a543ed8d53970b8fc878806e66240b6
+[2024-12-17 11:50:11] [website-service] [Tracker: 8dedc194-bc67-4291-aee4-be9d44a5127b] [Level: INFO]: Inserting application data: {"user_id":66,"email":"snehaekbote13@gmail.com","phone_number":"1234567890","profile":"Devops","resume_url":"fd080111d10f49f7841eeca18f042951:37f7f3859d14ea81d9b56fd5016472ba5597a28f33af169e11659042e3e859d5f0ac1f048187474c18152b8272dcbb4d4117785f19b1e58e7b5220c3603cbf8096b004b751c20010aaef9a5134b8e516162762d689b66233f12e7adaf87a91e44a543ed8d53970b8fc878806e66240b6","resume_filename":"8th sem _compressed.pdf","resume_data":"fd080111d10f49f7841eeca18f042951:37f7f3859d14ea81d9b56fd5016472ba5597a28f33af169e11659042e3e859d5f0ac1f048187474c18152b8272dcbb4d4117785f19b1e58e7b5220c3603cbf8096b004b751c20010aaef9a5134b8e516162762d689b66233f12e7adaf87a91e44a543ed8d53970b8fc878806e66240b6"}
+[2024-12-17 11:50:11] [website-service] [Tracker: 8dedc194-bc67-4291-aee4-be9d44a5127b] [Level: INFO]: Application saved to database
+[2024-12-17 11:50:14] [website-service] [Tracker: 8dedc194-bc67-4291-aee4-be9d44a5127b] [Level: INFO]: Career application email sent to: snehaekbote13@gmail.com
+[2024-12-17 11:50:22] [website-service] [Tracker: 97d52491-a880-46b5-923b-686f77011c68] [Level: INFO]: Fetching all career applications
+[2024-12-17 11:50:23] [website-service] [Tracker: 97d52491-a880-46b5-923b-686f77011c68] [Level: ERROR]: Error fetching career applications: Cannot read properties of undefined (reading 'split')
+[2024-12-17 15:25:59] [website-service] [Tracker: f728eb34-687c-40e7-aa23-c72910de78aa] [Level: INFO]: Fetching all career applications
+[2024-12-17 15:26:00] [website-service] [Tracker: f728eb34-687c-40e7-aa23-c72910de78aa] [Level: ERROR]: Error fetching career applications: Cannot read properties of undefined (reading 'split')
+[2024-12-17 15:28:13] [website-service] [Tracker: be8271ae-13ea-4424-a706-6d4ed781e281] [Level: INFO]: Fetching all career applications
+[2024-12-17 15:28:14] [website-service] [Tracker: be8271ae-13ea-4424-a706-6d4ed781e281] [Level: WARN]: Resume URL missing for application ID: 24
+[2024-12-17 15:28:14] [website-service] [Tracker: be8271ae-13ea-4424-a706-6d4ed781e281] [Level: WARN]: Resume URL missing for application ID: 25
+[2024-12-17 15:28:14] [website-service] [Tracker: be8271ae-13ea-4424-a706-6d4ed781e281] [Level: INFO]: Fetched all career applications
+[2024-12-17 15:32:12] [website-service] [Tracker: aae79161-1800-4699-b4b6-d9c5146b7569] [Level: INFO]: Fetching all career applications
+[2024-12-17 15:32:12] [website-service] [Tracker: aae79161-1800-4699-b4b6-d9c5146b7569] [Level: WARN]: Resume URL missing for application ID: 24
+[2024-12-17 15:32:12] [website-service] [Tracker: aae79161-1800-4699-b4b6-d9c5146b7569] [Level: WARN]: Resume URL missing for application ID: 25
+[2024-12-17 15:32:12] [website-service] [Tracker: aae79161-1800-4699-b4b6-d9c5146b7569] [Level: INFO]: Fetched all career applications
+[2024-12-17 15:32:18] [website-service] [Tracker: b5a23196-6226-4af0-bf2f-9ab9982ab1d4] [Level: INFO]: Fetching all career applications
+[2024-12-17 15:32:18] [website-service] [Tracker: b5a23196-6226-4af0-bf2f-9ab9982ab1d4] [Level: WARN]: Resume URL missing for application ID: 24
+[2024-12-17 15:32:18] [website-service] [Tracker: b5a23196-6226-4af0-bf2f-9ab9982ab1d4] [Level: WARN]: Resume URL missing for application ID: 25
+[2024-12-17 15:32:18] [website-service] [Tracker: b5a23196-6226-4af0-bf2f-9ab9982ab1d4] [Level: INFO]: Fetched all career applications
+[2024-12-17 15:33:08] [website-service] [Tracker: 187cbfdf-d3f0-459a-8ace-2304f05eb593] [Level: INFO]: Fetching all career applications
+[2024-12-17 15:33:09] [website-service] [Tracker: 187cbfdf-d3f0-459a-8ace-2304f05eb593] [Level: WARN]: Resume URL missing for application ID: 24
+[2024-12-17 15:33:09] [website-service] [Tracker: 187cbfdf-d3f0-459a-8ace-2304f05eb593] [Level: WARN]: Resume URL missing for application ID: 25
+[2024-12-17 15:33:09] [website-service] [Tracker: 187cbfdf-d3f0-459a-8ace-2304f05eb593] [Level: INFO]: Fetched all career applications
+[2024-12-17 16:56:46] [website-service] [Tracker: 198af89b-e6a9-4b6c-91b8-8143da77ddce] [Level: INFO]: Fetching all career applications
+[2024-12-17 16:56:47] [website-service] [Tracker: 198af89b-e6a9-4b6c-91b8-8143da77ddce] [Level: WARN]: Resume URL missing for application ID: 24
+[2024-12-17 16:56:47] [website-service] [Tracker: 198af89b-e6a9-4b6c-91b8-8143da77ddce] [Level: WARN]: Resume URL missing for application ID: 25
+[2024-12-17 16:56:47] [website-service] [Tracker: 198af89b-e6a9-4b6c-91b8-8143da77ddce] [Level: INFO]: Fetched all career applications
